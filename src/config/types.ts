@@ -29,7 +29,7 @@ export interface FilterState {
 	searchQuery: string; // Used for both Grep and LLM search
 	tags: string[];
 	dateRange: [string, string] | null; // ISO strings [startDate, endDate]
-	priceRange: [number, number];
+	priceRange: [number, number] | null;
 	showInStockOnly: boolean;
 }
 
@@ -102,15 +102,17 @@ export interface ProductPerformanceData {
 }
 
 // 4. Customer Demographics & Acquisition (For Radial/Radar Charts)
+interface TrafficSource {
+	sourceName: string; // e.g., 'Organic', 'Social', 'Direct', 'Referral'
+	visitors: number;
+	percentage: number;
+}
+
 export interface CustomerAnalyticsData {
 	newCustomers: number;
 	returningCustomers: number;
 	totalActiveUsers: number;
-	trafficSources: {
-		source: string; // e.g., 'Organic', 'Social', 'Direct', 'Referral'
-		visitors: number;
-		percentage: number;
-	}[];
+	trafficSources: TrafficSource[];
 }
 
 // 5. Sales Funnel Data (For Funnel Charts or stepped Bar Charts)
@@ -140,7 +142,7 @@ export interface SupplyChainNodeData {
 	type: SupplyChainNodeType;
 	status: SupplyChainNodeStatus;
 	details?: string;
-	stockLevel?: number;
+	stockLevel?: number; // this means, that this property is optional
 }
 
 // This is the custom data payload attached to React Flow Edges
@@ -172,6 +174,8 @@ export interface AppState {
 }
 
 // Discriminated Union for all Reducer Actions
+// This prevents use of undeclared events
+// basically compiler flags any event passed to reducer that is not in this union
 export type AppAction =
 	// Theme
 	| { type: "TOGGLE_THEME" }

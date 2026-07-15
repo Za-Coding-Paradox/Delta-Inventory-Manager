@@ -172,7 +172,12 @@ export const DUMMY_CALENDAR_EVENTS: CalendarEvent[] = [
 // 1. Time Series Data (Daily for a month)
 export const DUMMY_SALES_TIMESERIES: SalesTimeSeriesData[] = Array.from(
 	{ length: 30 },
-	(_, i) => {
+	(_, i: number) => {
+		// the first parameter is value at index,
+		// and since for this array like object all values are undefined
+		// so we don't pass the values of this array
+		// js treats any object with a number to be array like
+		// so to js this {length: 30} means an array with 30 slots
 		const date = new Date(2024, 4, i + 1).toISOString().split("T")[0];
 		const baseRevenue = 1000 + Math.floor(Math.random() * 500);
 		const orders = 10 + Math.floor(Math.random() * 20);
@@ -257,10 +262,10 @@ export const DUMMY_CUSTOMER_ANALYTICS: CustomerAnalyticsData = {
 	returningCustomers: 820,
 	totalActiveUsers: 1270,
 	trafficSources: [
-		{ source: "Organic Search", visitors: 5600, percentage: 45.2 },
-		{ source: "Social Media", visitors: 3200, percentage: 25.8 },
-		{ source: "Direct", visitors: 2400, percentage: 19.4 },
-		{ source: "Referral", visitors: 1200, percentage: 9.6 },
+		{ sourceName: "Organic Search", visitors: 5600, percentage: 45.2 },
+		{ sourceName: "Social Media", visitors: 3200, percentage: 25.8 },
+		{ sourceName: "Direct", visitors: 2400, percentage: 19.4 },
+		{ sourceName: "Referral", visitors: 1200, percentage: 9.6 },
 	],
 };
 
