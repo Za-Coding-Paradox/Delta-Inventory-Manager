@@ -1,122 +1,159 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// src/App.jsx
+import { useState } from "react";
+import {
+	Button,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
+	Typography,
+	Paper,
+	CssBaseline,
+	ThemeProvider,
+	createTheme,
+} from "@mui/material";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Create a custom MUI theme to make it look premium
+const theme = createTheme({
+	typography: {
+		fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+		h6: {
+			fontWeight: 600,
+			letterSpacing: "-0.025em",
+			color: "#1e293b",
+		},
+	},
+	palette: {
+		background: {
+			default: "transparent", // Let our CSS background show through
+		},
+		primary: {
+			main: "#3b82f6",
+			dark: "#2563eb",
+		},
+	},
+	shape: {
+		borderRadius: 12, // Rounded corners for all MUI components
+	},
+	components: {
+		MuiPaper: {
+			styleOverrides: {
+				root: {
+					boxShadow:
+						"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.05)",
+					transition: "transform 0.2s ease, box-shadow 0.2s ease",
+					"&:hover": {
+						transform: "translateY(-2px)",
+						boxShadow:
+							"0 10px 20px -5px rgba(0, 0, 0, 0.08), 0 20px 25px -5px rgba(0, 0, 0, 0.05)",
+					},
+				},
+			},
+		},
+		MuiButton: {
+			styleOverrides: {
+				root: {
+					textTransform: "none", // Removes the default ALL CAPS
+					fontWeight: 600,
+					padding: "10px 24px",
+					boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
+				},
+			},
+		},
+	},
+});
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+export default function App() {
+	const [muiCategory, setMuiCategory] = useState("");
+	const [nativeCategory, setNativeCategory] = useState("");
 
-      <div className="ticks"></div>
+	return (
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+			<div className="comparison-container">
+				{/* ==========================================
+            1. THE MATERIAL UI APPROACH
+            ========================================== */}
+				<Paper
+					sx={{
+						p: 4,
+						minWidth: 320,
+						display: "flex",
+						flexDirection: "column",
+						gap: 3,
+					}}
+				>
+					<Typography variant="h6" component="h3">
+						MUI Components
+					</Typography>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+					<FormControl fullWidth variant="outlined">
+						<InputLabel id="mui-dropdown-label">
+							Category
+						</InputLabel>
+						<Select
+							labelId="mui-dropdown-label"
+							value={muiCategory}
+							label="Category"
+							onChange={(e) => setMuiCategory(e.target.value)}
+						>
+							<MenuItem value="electronics">Electronics</MenuItem>
+							<MenuItem value="furniture">Furniture</MenuItem>
+							<MenuItem value="clothing">Clothing</MenuItem>
+						</Select>
+					</FormControl>
+
+					<Button
+						variant="contained"
+						color="primary"
+						size="large"
+						onClick={() => alert(`MUI Submitted: ${muiCategory}`)}
+						sx={{ mt: 1 }}
+					>
+						Submit
+					</Button>
+				</Paper>
+
+				{/* ==========================================
+            2. THE NATIVE HTML/CSS APPROACH
+            ========================================== */}
+				<div className="native-card">
+					<h3>Native HTML / CSS</h3>
+
+					<div className="native-form-group">
+						<label
+							className="native-label"
+							htmlFor="native-dropdown"
+						>
+							Category
+						</label>
+						<select
+							id="native-dropdown"
+							className="native-select"
+							value={nativeCategory}
+							onChange={(e) => setNativeCategory(e.target.value)}
+						>
+							<option value="" disabled>
+								Select a category
+							</option>
+							<option value="electronics">Electronics</option>
+							<option value="furniture">Furniture</option>
+							<option value="clothing">Clothing</option>
+						</select>
+					</div>
+
+					<button
+						className="native-button"
+						onClick={() =>
+							alert(`Native Submitted: ${nativeCategory}`)
+						}
+					>
+						Submit
+					</button>
+				</div>
+			</div>
+		</ThemeProvider>
+	);
 }
-
-export default App
