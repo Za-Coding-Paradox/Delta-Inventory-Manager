@@ -112,20 +112,17 @@ Product list: ${JSON.stringify(productList)}
 Return ONLY a raw JSON array of matching IDs, no explanation, no markdown. Example: ["prod_1", "prod_3"]`;
 
 			try {
-				const res = await fetch(
-					"https://api.anthropic.com/v1/messages",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							model: "claude-sonnet-4-6",
-							max_tokens: 1000,
-							messages: [{ role: "user", content: prompt }],
-						}),
+				const res = await fetch("https://api.cohere.com/v2", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
 					},
-				);
+					body: JSON.stringify({
+						model: "claude-sonnet-4-6",
+						max_tokens: 1000,
+						messages: [{ role: "user", content: prompt }],
+					}),
+				});
 
 				const data = await res.json();
 				const textResponse: string =

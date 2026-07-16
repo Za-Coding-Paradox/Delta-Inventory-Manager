@@ -50,9 +50,9 @@ export const getTheme = (mode: "light" | "dark") => {
 					success: { main: "#4CAF50" },
 					warning: { main: "#FF9800" },
 					error: { main: "#F44336" },
-					background: { default: "#F9F9F9", paper: "#FFFFFF" },
-					text: { primary: "#1A1A1A", secondary: "#555555" },
-					divider: alpha("#1A1A1A", 0.12),
+					background: { default: "#F4F6F8", paper: "#FFFFFF" },
+					text: { primary: "#1A1A2E", secondary: "#5C6370" },
+					divider: alpha("#1A1A2E", 0.08),
 				}
 			: {
 					primary: {
@@ -146,13 +146,28 @@ export const getTheme = (mode: "light" | "dark") => {
 					root: {
 						backgroundColor: alpha(
 							baseTheme.palette.background.paper,
-							0.85,
+							0.92,
 						),
-						backdropFilter: "blur(12px)", // Glassmorphism
+						backdropFilter: "blur(16px)",
 						color: baseTheme.palette.text.primary,
-						borderBottom: `1px solid ${baseTheme.palette.divider}`,
-						boxShadow: "none",
-						transition: "transform 0.3s ease-in-out", // For hide-on-scroll
+						borderBottom: "none",
+						boxShadow:
+							mode === "light"
+								? "0 4px 24px rgba(58, 107, 136, 0.08)"
+								: "0 4px 24px rgba(0, 0, 0, 0.4)",
+						borderRadius: "0 0 28px 28px",
+						overflow: "visible",
+						transition: "transform 0.3s ease-in-out",
+						"&::after": {
+							content: '""',
+							position: "absolute",
+							bottom: -1,
+							left: "3%",
+							right: "3%",
+							height: 1,
+							background: `linear-gradient(90deg, transparent, ${baseTheme.palette.divider}, transparent)`,
+							borderRadius: "0 0 28px 28px",
+						},
 					},
 				},
 			},
@@ -169,7 +184,7 @@ export const getTheme = (mode: "light" | "dark") => {
 			MuiOutlinedInput: {
 				styleOverrides: {
 					root: {
-						borderRadius: "12px",
+						borderRadius: "14px",
 						backgroundColor:
 							mode === "light" ? "#FFFFFF" : "#222222",
 						transition: "all 0.2s ease",
@@ -178,8 +193,147 @@ export const getTheme = (mode: "light" | "dark") => {
 						},
 						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 							borderWidth: "2px",
-							boxShadow: `0 0 0 4px ${alpha(baseTheme.palette.primary.main, 0.15)}`,
+							borderColor: baseTheme.palette.primary.main,
+							boxShadow: `0 0 0 4px ${alpha(baseTheme.palette.primary.main, 0.12)}`,
 						},
+					},
+					notchedOutline: {
+						borderColor: alpha(baseTheme.palette.text.primary, 0.12),
+					},
+				},
+			},
+
+			MuiAutocomplete: {
+				styleOverrides: {
+					paper: {
+						borderRadius: "14px",
+						marginTop: 6,
+						border: `1px solid ${baseTheme.palette.divider}`,
+						boxShadow:
+							mode === "light"
+								? "0 8px 32px rgba(58, 107, 136, 0.12)"
+								: "0 8px 32px rgba(0, 0, 0, 0.45)",
+					},
+					option: {
+						borderRadius: "8px",
+						margin: "2px 8px",
+						"&:last-of-type": { marginBottom: 8 },
+						"&:first-of-type": { marginTop: 8 },
+					},
+					listbox: {
+						padding: 0,
+					},
+				},
+			},
+
+			MuiMenu: {
+				styleOverrides: {
+					paper: {
+						borderRadius: "14px",
+						marginTop: 6,
+						border: `1px solid ${baseTheme.palette.divider}`,
+						boxShadow:
+							mode === "light"
+								? "0 8px 32px rgba(58, 107, 136, 0.12)"
+								: "0 8px 32px rgba(0, 0, 0, 0.45)",
+					},
+					list: {
+						padding: "6px",
+					},
+				},
+			},
+
+			MuiMenuItem: {
+				styleOverrides: {
+					root: {
+						borderRadius: "8px",
+						margin: "2px 0",
+						fontWeight: 500,
+						"&.Mui-selected": {
+							backgroundColor: alpha(
+								baseTheme.palette.primary.main,
+								0.1,
+							),
+						},
+					},
+				},
+			},
+
+			MuiSelect: {
+				styleOverrides: {
+					select: {
+						borderRadius: "14px",
+					},
+				},
+			},
+
+			MuiPopover: {
+				styleOverrides: {
+					paper: {
+						borderRadius: "16px",
+						border: `1px solid ${baseTheme.palette.divider}`,
+						boxShadow:
+							mode === "light"
+								? "0 12px 40px rgba(58, 107, 136, 0.14)"
+								: "0 12px 40px rgba(0, 0, 0, 0.5)",
+					},
+				},
+			},
+
+			MuiSlider: {
+				styleOverrides: {
+					root: {
+						height: 6,
+					},
+					thumb: {
+						width: 18,
+						height: 18,
+						"&:hover, &.Mui-focusVisible": {
+							boxShadow: `0 0 0 8px ${alpha(baseTheme.palette.primary.main, 0.16)}`,
+						},
+					},
+					track: {
+						border: "none",
+						height: 6,
+						borderRadius: 3,
+					},
+					rail: {
+						height: 6,
+						borderRadius: 3,
+						opacity: 0.3,
+					},
+				},
+			},
+
+			MuiToggleButton: {
+				styleOverrides: {
+					root: {
+						borderRadius: "12px !important",
+						textTransform: "none",
+						fontWeight: 600,
+						borderColor: baseTheme.palette.divider,
+						"&.Mui-selected": {
+							backgroundColor: alpha(
+								baseTheme.palette.primary.main,
+								0.12,
+							),
+							color: baseTheme.palette.primary.main,
+							"&:hover": {
+								backgroundColor: alpha(
+									baseTheme.palette.primary.main,
+									0.18,
+								),
+							},
+						},
+					},
+				},
+			},
+
+			MuiDrawer: {
+				styleOverrides: {
+					paper: {
+						borderRadius: "20px 0 0 20px",
+						borderLeft: `1px solid ${baseTheme.palette.divider}`,
 					},
 				},
 			},
@@ -306,17 +460,29 @@ export const getTheme = (mode: "light" | "dark") => {
 			MuiChip: {
 				styleOverrides: {
 					root: {
-						borderRadius: "6px",
+						borderRadius: "10px",
 						fontWeight: 600,
 						fontSize: "0.75rem",
+						transition: "all 0.2s ease",
+					},
+					filled: {
+						"&.MuiChip-colorPrimary": {
+							boxShadow: `0 2px 8px ${alpha(baseTheme.palette.primary.main, 0.25)}`,
+						},
 					},
 					outlined: {
 						backgroundColor: alpha(
 							baseTheme.palette.primary.main,
-							0.05,
+							0.04,
 						),
-						borderColor: alpha(baseTheme.palette.primary.main, 0.3),
+						borderColor: alpha(baseTheme.palette.primary.main, 0.25),
 						color: baseTheme.palette.primary.main,
+						"&:hover": {
+							backgroundColor: alpha(
+								baseTheme.palette.primary.main,
+								0.1,
+							),
+						},
 					},
 				},
 				// Custom variants for product statuses

@@ -19,8 +19,15 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import type { Product } from "../../../config/types";
 import { useAppContext } from "../../../context/app-context";
+import {
+	canAddToCart,
+	getMaxAddableQty,
+	getRemainingStock,
+} from "../../../utils/cart-sync";
 
 interface Props {
 	product: Product | null;
@@ -37,17 +44,28 @@ export default function ProductOverviewModal({
 }: Props) {
 	const { state, dispatch } = useAppContext();
 	const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
+	const [quantity, setQuantity] = useState(1);
 	const [prevProductId, setPrevProductId] = useState(product?.id);
 
-	// React 18+ pattern to reset state when prop changes without using useEffect
 	if (product?.id !== prevProductId) {
 		setPrevProductId(product?.id);
 		setSelectedColor(product?.colors[0]);
+		setQuantity(1);
 	}
 
 	if (!product) return null;
 
+	const liveProduct =
+		state.products.find((p) => p.id === product.id) ?? product;
 	const isWishlisted = state.wishlist.some((p) => p.id === product.id);
+	const remaining = getRemainingStock(state, liveProduct.id);
+	const maxQty = getMaxAddableQty(
+		state.cart,
+		liveProduct,
+		selectedColor?.name || liveProduct.colors[0].name,
+		remaining,
+	);
+
 	const relatedItems = state.products
 		.filter(
 			(p) =>
@@ -56,13 +74,29 @@ export default function ProductOverviewModal({
 		)
 		.slice(0, 6);
 
+	const statusColor =
+		liveProduct.status === "IN_STOCK"
+			? "success"
+			: liveProduct.status === "COMING_SOON"
+				? "warning"
+				: "error";
+
 	const handleAddToCart = () => {
+		if (!canAddToCart(liveProduct) || !selectedColor) return;
+		const addQty = getMaxAddableQty(
+			state.cart,
+			liveProduct,
+			selectedColor.name,
+			quantity,
+		);
+		if (addQty <= 0) return;
+
 		dispatch({
 			type: "ADD_TO_CART",
 			payload: {
-				product,
-				selectedColorName: selectedColor?.name || "",
-				quantity: 1,
+				product: liveProduct,
+				selectedColorName: selectedColor.name,
+				quantity: addQty,
 			},
 		});
 		onClose();
@@ -76,13 +110,15 @@ export default function ProductOverviewModal({
 					top: "50%",
 					left: "50%",
 					transform: "translate(-50%, -50%)",
-					width: { xs: "90%", md: "800px" },
+					width: { xs: "92%", md: 820 },
 					maxHeight: "90vh",
 					overflowY: "auto",
 					bgcolor: "background.paper",
-					borderRadius: "20px",
+					borderRadius: "24px",
 					boxShadow: 24,
-					p: 4,
+					p: { xs: 3, md: 4 },
+					border: 1,
+					borderColor: "divider",
 				}}
 			>
 				<IconButton
@@ -117,69 +153,140 @@ export default function ProductOverviewModal({
 								width: "100%",
 								height: 400,
 								objectFit: "cover",
-								borderRadius: "12px",
+								borderRadius: "16px",
 							}}
 						/>
 					</Grid>
 					<Grid size={{ xs: 12, md: 6 }}>
+						<Typography
+							variant="h5"
+							sx={{ fontWeight: 800, mb: 1, pr: 4 }}
+						>
+							{liveProduct.name}
+						</Typography>
+
 						<Box
 							sx={{
 								display: "flex",
-								justifyContent: "space-between",
+								alignItems: "center",
+								gap: 2,
 								mb: 2,
 							}}
 						>
 							<Typography
 								variant="h5"
 								color="primary"
-								sx={{ fontWeight: 700 }}
+								sx={{ fontWeight: 800 }}
 							>
-								${product.price.toFixed(2)}
+								${liveProduct.price.toFixed(2)}
 							</Typography>
 							<Chip
-								label={product.status.replace("_", " ")}
+								label={liveProduct.status.replace("_", " ")}
 								size="small"
-								sx={{
-									textTransform: "capitalize",
-									fontWeight: 700,
-									backgroundColor: (t) =>
-										product.status === "IN_STOCK"
-											? t.palette.success.main
-											: t.palette.error.main,
-									color: "#fff",
-								}}
+								color={statusColor}
+								variant="status"
+								sx={{ textTransform: "capitalize", fontWeight: 700 }}
 							/>
+							{liveProduct.status === "IN_STOCK" && (
+								<Typography variant="body2" color="text.secondary">
+									{remaining} left in stock
+								</Typography>
+							)}
 						</Box>
+
 						<Typography
 							variant="body1"
 							color="text.secondary"
-							sx={{ mb: 3 }}
+							sx={{ mb: 3, lineHeight: 1.7 }}
 						>
-							{product.description}
+							{liveProduct.description}
 						</Typography>
-						<Typography variant="subtitle2" sx={{ mb: 1 }}>
+
+						<Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
 							Select Color:
 						</Typography>
-						<Box sx={{ display: "flex", gap: 1, mb: 4 }}>
-							{product.colors.map((color) => (
+						<Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+							{liveProduct.colors.map((color) => (
 								<Box
 									key={color.name}
 									onClick={() => setSelectedColor(color)}
 									sx={{
-										width: 32,
-										height: 32,
+										width: 36,
+										height: 36,
 										borderRadius: "50%",
 										backgroundColor: color.hex,
 										border: (t) =>
 											selectedColor?.name === color.name
 												? `3px solid ${t.palette.primary.main}`
-												: "3px solid transparent",
+												: `3px solid ${t.palette.divider}`,
 										cursor: "pointer",
+										transition: "transform 0.15s",
 										"&:hover": { transform: "scale(1.1)" },
+										boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
 									}}
 								/>
 							))}
 						</Box>
+
+						{canAddToCart(liveProduct) && (
+							<Box sx={{ mb: 3 }}>
+								<Typography
+									variant="subtitle2"
+									sx={{ mb: 1, fontWeight: 600 }}
+								>
+									Quantity:
+								</Typography>
+								<Box
+									sx={{
+										display: "inline-flex",
+										alignItems: "center",
+										border: 1,
+										borderColor: "divider",
+										borderRadius: "14px",
+										overflow: "hidden",
+									}}
+								>
+									<IconButton
+										size="small"
+										onClick={() =>
+											setQuantity((q) => Math.max(1, q - 1))
+										}
+										disabled={quantity <= 1}
+									>
+										<RemoveIcon fontSize="small" />
+									</IconButton>
+									<Typography
+										sx={{
+											px: 2,
+											fontWeight: 700,
+											minWidth: 32,
+											textAlign: "center",
+										}}
+									>
+										{quantity}
+									</Typography>
+									<IconButton
+										size="small"
+										onClick={() =>
+											setQuantity((q) =>
+												Math.min(maxQty, q + 1),
+											)
+										}
+										disabled={quantity >= maxQty}
+									>
+										<AddIcon fontSize="small" />
+									</IconButton>
+								</Box>
+								<Typography
+									variant="caption"
+									color="text.secondary"
+									sx={{ display: "block", mt: 0.5 }}
+								>
+									Max {maxQty} can be added
+								</Typography>
+							</Box>
+						)}
+
 						<Box sx={{ display: "flex", gap: 2 }}>
 							<Button
 								variant="contained"
@@ -187,7 +294,10 @@ export default function ProductOverviewModal({
 								fullWidth
 								startIcon={<ShoppingCartOutlinedIcon />}
 								onClick={handleAddToCart}
-								disabled={product.status === "OUT_OF_STOCK"}
+								disabled={
+									!canAddToCart(liveProduct) || maxQty <= 0
+								}
+								sx={{ borderRadius: "14px", py: 1.25 }}
 							>
 								Add to Cart
 							</Button>
@@ -197,9 +307,10 @@ export default function ProductOverviewModal({
 								onClick={() =>
 									dispatch({
 										type: "TOGGLE_WISHLIST",
-										payload: product,
+										payload: liveProduct,
 									})
 								}
+								sx={{ borderRadius: "14px", minWidth: 56 }}
 							>
 								{isWishlisted ? (
 									<FavoriteIcon color="error" />
@@ -213,7 +324,7 @@ export default function ProductOverviewModal({
 
 				{relatedItems.length > 0 && (
 					<Box sx={{ mt: 5 }}>
-						<Typography variant="h6" sx={{ mb: 2 }}>
+						<Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
 							Related Items
 						</Typography>
 						<Box
@@ -227,12 +338,17 @@ export default function ProductOverviewModal({
 							{relatedItems.map((item) => (
 								<Card
 									key={item.id}
+									elevation={0}
 									onClick={() => onQuickView(item)}
 									sx={{
 										minWidth: 200,
 										cursor: "pointer",
+										borderRadius: "16px",
+										border: 1,
+										borderColor: "divider",
+										transition: "transform 0.2s",
 										"&:hover": {
-											transform: "translateY(-5px)",
+											transform: "translateY(-4px)",
 											boxShadow: 3,
 										},
 									}}
@@ -253,6 +369,7 @@ export default function ProductOverviewModal({
 										<Typography
 											variant="body2"
 											color="primary"
+											sx={{ fontWeight: 700 }}
 										>
 											${item.price.toFixed(2)}
 										</Typography>

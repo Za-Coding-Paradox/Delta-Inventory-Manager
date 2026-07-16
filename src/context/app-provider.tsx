@@ -15,12 +15,18 @@ import {
 	DUMMY_CALENDAR_EVENTS,
 	COLOR_COMPLEMENTS,
 } from "../config/constants";
+import {
+	canAddToCart,
+	clampCartItemQty,
+	getMaxAddableQty,
+	syncCartWithProducts,
+	syncWishlistWithProducts,
+} from "../utils/cart-sync";
 
 /* ==========================================================================
  * 1. INITIAL STATE & LOCAL STORAGE HYDRATION
  * ========================================================================== */
 
-// Standard function declaration to avoid erasableSyntaxOnly errors with arrow generics
 function loadFromStorage<T>(key: string, fallback: T): T {
 	try {
 		const stored = localStorage.getItem(key);
@@ -31,19 +37,36 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 	}
 }
 
+function hydrateProducts(stored: Product[]): Product[] {
+	return stored.map((product) => ({
+		...product,
+		stockQuantity: product.stockQuantity ?? 0,
+	}));
+}
+
+const initialProducts = hydrateProducts(
+	loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS),
+);
+
 const initialState: AppState = {
 	theme: loadFromStorage<"light" | "dark">(STORAGE_KEYS.THEME, "light"),
-	products: loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS),
-	cart: loadFromStorage<CartItem[]>(STORAGE_KEYS.CART, []),
-	wishlist: loadFromStorage<Product[]>(STORAGE_KEYS.WISHLIST, []),
-	cartSuggestions: [], // Computed dynamically
+	products: initialProducts,
+	cart: syncCartWithProducts(
+		loadFromStorage<CartItem[]>(STORAGE_KEYS.CART, []),
+		initialProducts,
+	),
+	wishlist: syncWishlistWithProducts(
+		loadFromStorage<Product[]>(STORAGE_KEYS.WISHLIST, []),
+		initialProducts,
+	),
+	cartSuggestions: [],
 	filters: {
 		searchQuery: "",
 		tags: [],
 		dateRange: null,
 		priceRange: null,
 		showInStockOnly: false,
-		category: null, // Added
+		category: null,
 		aiMatchedIds: null,
 	},
 	notifications: loadFromStorage(
@@ -67,45 +90,96 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 
 		case "ADD_TO_CART": {
 			const { product, selectedColorName, quantity } = action.payload;
+			const liveProduct =
+				state.products.find((p) => p.id === product.id) ?? product;
+
+			if (!canAddToCart(liveProduct)) return state;
+
+			const addQty = getMaxAddableQty(
+				state.cart,
+				liveProduct,
+				selectedColorName,
+				quantity,
+			);
+			if (addQty <= 0) return state;
+
 			const existingItem = state.cart.find(
 				(item) =>
-					item.product.id === product.id &&
+					item.product.id === liveProduct.id &&
 					item.selectedColorName === selectedColorName,
 			);
 
-			if (existingItem) {
-				return {
-					...state,
-					cart: state.cart.map((item) =>
-						item.product.id === product.id &&
+			const nextCart = existingItem
+				? state.cart.map((item) =>
+						item.product.id === liveProduct.id &&
 						item.selectedColorName === selectedColorName
-							? { ...item, quantity: item.quantity + quantity }
+							? {
+									...item,
+									product: liveProduct,
+									quantity: item.quantity + addQty,
+								}
 							: item,
-					),
-				};
-			}
-			return { ...state, cart: [...state.cart, action.payload] };
+					)
+				: [
+						...state.cart,
+						{
+							product: liveProduct,
+							selectedColorName,
+							quantity: addQty,
+						},
+					];
+
+			return {
+				...state,
+				cart: syncCartWithProducts(nextCart, state.products),
+			};
 		}
 
 		case "REMOVE_FROM_CART":
 			return {
 				...state,
 				cart: state.cart.filter(
-					(item) => item.product.id !== action.payload,
+					(item) =>
+						!(
+							item.product.id === action.payload.productId &&
+							item.selectedColorName ===
+								action.payload.selectedColorName
+						),
 				),
 			};
 
-		case "UPDATE_CART_QTY":
+		case "UPDATE_CART_QTY": {
+			const { productId, selectedColorName, quantity } = action.payload;
+			const liveProduct = state.products.find((p) => p.id === productId);
+			if (!liveProduct) return state;
+
+			const nextCart = state.cart
+				.map((item) => {
+					if (
+						item.product.id !== productId ||
+						item.selectedColorName !== selectedColorName
+					) {
+						return item;
+					}
+					const clamped = clampCartItemQty(
+						state.cart,
+						item,
+						liveProduct,
+						quantity,
+					);
+					return {
+						...item,
+						product: liveProduct,
+						quantity: clamped,
+					};
+				})
+				.filter((item) => item.quantity > 0);
+
 			return {
 				...state,
-				cart: state.cart
-					.map((item) =>
-						item.product.id === action.payload.productId
-							? { ...item, quantity: action.payload.quantity }
-							: item,
-					)
-					.filter((item) => item.quantity > 0),
+				cart: syncCartWithProducts(nextCart, state.products),
 			};
+		}
 
 		case "CLEAR_CART":
 			return { ...state, cart: [], cartSuggestions: [] };
@@ -114,14 +188,17 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			return { ...state, cartSuggestions: action.payload };
 
 		case "TOGGLE_WISHLIST": {
+			const liveProduct =
+				state.products.find((p) => p.id === action.payload.id) ??
+				action.payload;
 			const exists = state.wishlist.some(
-				(p) => p.id === action.payload.id,
+				(p) => p.id === liveProduct.id,
 			);
 			return {
 				...state,
 				wishlist: exists
-					? state.wishlist.filter((p) => p.id !== action.payload.id)
-					: [...state.wishlist, action.payload],
+					? state.wishlist.filter((p) => p.id !== liveProduct.id)
+					: [...state.wishlist, liveProduct],
 			};
 		}
 
@@ -140,25 +217,51 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 					dateRange: null,
 					priceRange: null,
 					showInStockOnly: false,
-					category: null, // Added
+					category: null,
+					aiMatchedIds: null,
 				},
 			};
 
 		case "ADD_PRODUCT":
 			return { ...state, products: [...state.products, action.payload] };
 
-		case "UPDATE_PRODUCT":
+		case "UPDATE_PRODUCT": {
+			const updatedProducts = state.products.map((p) =>
+				p.id === action.payload.id ? action.payload : p,
+			);
 			return {
 				...state,
-				products: state.products.map((p) =>
-					p.id === action.payload.id ? action.payload : p,
+				products: updatedProducts,
+				cart: syncCartWithProducts(state.cart, updatedProducts),
+				wishlist: syncWishlistWithProducts(
+					state.wishlist,
+					updatedProducts,
 				),
 			};
+		}
 
-		case "DELETE_PRODUCT":
+		case "DELETE_PRODUCT": {
+			const updatedProducts = state.products.filter(
+				(p) => p.id !== action.payload,
+			);
 			return {
 				...state,
-				products: state.products.filter((p) => p.id !== action.payload),
+				products: updatedProducts,
+				cart: state.cart.filter(
+					(item) => item.product.id !== action.payload,
+				),
+				wishlist: state.wishlist.filter((p) => p.id !== action.payload),
+			};
+		}
+
+		case "SYNC_CART_WISHLIST":
+			return {
+				...state,
+				cart: syncCartWithProducts(state.cart, state.products),
+				wishlist: syncWishlistWithProducts(
+					state.wishlist,
+					state.products,
+				),
 			};
 
 		case "ADD_NOTIFICATION":
@@ -187,13 +290,11 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
  * 3. PROVIDER COMPONENT (Includes LocalStorage Sync & Auto-Suggestions)
  * ========================================================================== */
 
-// ONLY a component is exported from this file, satisfying Fast Refresh!
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [state, dispatch] = useReducer(appReducer, initialState);
 
-	// --- Persistence Effects ---
 	useEffect(() => {
 		localStorage.setItem(STORAGE_KEYS.THEME, JSON.stringify(state.theme));
 	}, [state.theme]);
@@ -223,7 +324,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 		);
 	}, [state.notifications]);
 
-	// --- Cart Auto-Suggestions Algorithm ---
+	useEffect(() => {
+		dispatch({ type: "SYNC_CART_WISHLIST" });
+	}, [state.products]);
+
 	useEffect(() => {
 		if (state.cart.length === 0) {
 			dispatch({ type: "SET_CART_SUGGESTIONS", payload: [] });

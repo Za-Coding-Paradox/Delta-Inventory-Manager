@@ -47,6 +47,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["pants", "summer", "casual"],
 		dateAdded: new Date(2024, 2, 15).toISOString(),
 		status: "IN_STOCK",
+		stockQuantity: 24,
 		colors: [
 			{
 				name: "White",
@@ -72,6 +73,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["shirts", "summer", "casual"],
 		dateAdded: new Date(2024, 3, 5).toISOString(),
 		status: "IN_STOCK",
+		stockQuantity: 18,
 		colors: [
 			{
 				name: "Teal",
@@ -96,6 +98,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["coats", "winter", "formal"],
 		dateAdded: new Date(2024, 1, 10).toISOString(),
 		status: "COMING_SOON",
+		stockQuantity: 0,
 		colors: [
 			{
 				name: "Black",
@@ -114,6 +117,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["dresses", "summer", "casual"],
 		dateAdded: new Date(2024, 4, 1).toISOString(),
 		status: "OUT_OF_STOCK",
+		stockQuantity: 0,
 		colors: [
 			{
 				name: "Coral",
@@ -134,6 +138,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["audio", "electronics", "travel"],
 		dateAdded: new Date(2024, 4, 10).toISOString(),
 		status: "IN_STOCK",
+		stockQuantity: 12,
 		colors: [
 			{
 				name: "Black",
@@ -160,6 +165,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["home", "gadgets", "kitchen"],
 		dateAdded: new Date(2024, 3, 22).toISOString(),
 		status: "IN_STOCK",
+		stockQuantity: 30,
 		colors: [
 			{
 				name: "White",
@@ -184,6 +190,7 @@ export const DUMMY_PRODUCTS: Product[] = [
 		tags: ["pc", "gaming", "electronics"],
 		dateAdded: new Date(2024, 2, 5).toISOString(),
 		status: "COMING_SOON",
+		stockQuantity: 0,
 		colors: [
 			{
 				name: "Black",

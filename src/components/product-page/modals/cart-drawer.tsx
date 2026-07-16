@@ -1,5 +1,5 @@
 // src/components/product-page/modals/cart-drawer.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Drawer,
 	Box,
@@ -13,56 +13,87 @@ import {
 	Paper,
 	ToggleButton,
 	ToggleButtonGroup,
-	List,
-	ListItem,
-	ListItemButton,
-	ListItemText,
-	ListItemIcon,
-	Checkbox,
+	Chip,
 	LinearProgress,
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined"; // Fixed import
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useAppContext } from "../../../context/app-context";
 import type { CartItem } from "../../../config/types";
+import {
+	cartItemKey,
+	clampCartItemQty,
+	getLiveProduct,
+	getRemainingStock,
+} from "../../../utils/cart-sync";
 
 const steps = ["Review Cart", "Select Items", "Checkout"];
+
+interface Props {
+	open: boolean;
+	onClose: () => void;
+	initialStep?: number;
+}
 
 export default function CartDrawer({
 	open,
 	onClose,
-}: {
-	open: boolean;
-	onClose: () => void;
-}) {
+	initialStep = 0,
+}: Props) {
 	const { state, dispatch } = useAppContext();
-	const [activeStep, setActiveStep] = useState(0);
+	const [activeStep, setActiveStep] = useState(initialStep);
 	const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
 	const [deliveryType, setDeliveryType] = useState("standard");
 	const [deliveryDate, setDeliveryDate] = useState<Date | null>(null);
+
+	useEffect(() => {
+		if (open) setActiveStep(initialStep);
+	}, [open, initialStep]);
 
 	const totalPrice = state.cart.reduce(
 		(acc, item) => acc + item.product.price * item.quantity,
 		0,
 	);
 
-	const handleToggle = (item: CartItem) => {
+	const handleToggleCheckout = (item: CartItem) => {
+		const key = cartItemKey(item.product.id, item.selectedColorName);
 		const isAdded = checkoutItems.some(
-			(i) => i.product.id === item.product.id,
+			(i) =>
+				cartItemKey(i.product.id, i.selectedColorName) === key,
 		);
 		if (isAdded) {
 			setCheckoutItems(
-				checkoutItems.filter((i) => i.product.id !== item.product.id),
+				checkoutItems.filter(
+					(i) =>
+						cartItemKey(i.product.id, i.selectedColorName) !== key,
+				),
 			);
 		} else {
 			setCheckoutItems([...checkoutItems, item]);
 		}
+	};
+
+	const handleQtyChange = (item: CartItem, delta: number) => {
+		const live = getLiveProduct(state.products, item.product.id);
+		if (!live) return;
+		const newQty = clampCartItemQty(
+			state.cart,
+			item,
+			live,
+			item.quantity + delta,
+		);
+		dispatch({
+			type: "UPDATE_CART_QTY",
+			payload: {
+				productId: item.product.id,
+				selectedColorName: item.selectedColorName,
+				quantity: newQty,
+			},
+		});
 	};
 
 	const handleNext = () => setActiveStep((prev) => prev + 1);
@@ -73,7 +104,7 @@ export default function CartDrawer({
 			<Drawer anchor="right" open={open} onClose={onClose}>
 				<Box
 					sx={{
-						width: { xs: "100%", sm: 450 },
+						width: { xs: "100vw", sm: 460 },
 						p: 3,
 						display: "flex",
 						flexDirection: "column",
@@ -90,7 +121,7 @@ export default function CartDrawer({
 						<Typography variant="h6" sx={{ fontWeight: 700 }}>
 							Your Cart
 						</Typography>
-						<IconButton onClick={onClose}>
+						<IconButton onClick={onClose} size="small">
 							<CloseIcon />
 						</IconButton>
 					</Box>
@@ -101,7 +132,7 @@ export default function CartDrawer({
 						sx={{ mb: 3, height: 6, borderRadius: 3 }}
 					/>
 
-					<Stepper activeStep={activeStep} sx={{ mb: 3 }}>
+					<Stepper activeStep={activeStep} sx={{ mb: 3 }} alternativeLabel>
 						{steps.map((label) => (
 							<Step key={label}>
 								<StepLabel>{label}</StepLabel>
@@ -109,225 +140,238 @@ export default function CartDrawer({
 						))}
 					</Stepper>
 
-					<Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+					<Box sx={{ flexGrow: 1, overflowY: "auto", pr: 0.5 }}>
 						{activeStep === 0 && (
 							<>
 								{state.cart.length === 0 ? (
 									<Typography
 										sx={{ textAlign: "center", mt: 5 }}
+										color="text.secondary"
 									>
 										Your cart is empty.
 									</Typography>
 								) : (
-									state.cart.map((item) => (
-										<Paper
-											key={item.product.id}
-											sx={{
-												p: 2,
-												mb: 2,
-												display: "flex",
-												alignItems: "center",
-											}}
-										>
-											<Box
-												component="img"
-												src={
-													item.product.colors.find(
-														(c) =>
-															c.name ===
-															item.selectedColorName,
-													)?.imageUrl
-												}
-												sx={{
-													width: 60,
-													height: 60,
-													borderRadius: 1,
-													mr: 2,
-												}}
-											/>
-											<Box sx={{ flexGrow: 1 }}>
-												<Typography
-													variant="body2"
-													sx={{ fontWeight: 600 }}
-												>
-													{item.product.name}
-												</Typography>
-												<Typography
-													variant="caption"
-													color="text.secondary"
-												>
-													{item.selectedColorName}
-												</Typography>
+									state.cart.map((item) => {
+										const live = getLiveProduct(
+											state.products,
+											item.product.id,
+										);
+										const remaining = live
+											? getRemainingStock(state, item.product.id) +
+												item.quantity
+											: 0;
+										const atMax =
+											live &&
+											item.quantity >=
+												clampCartItemQty(
+													state.cart,
+													item,
+													live,
+													remaining,
+												);
 
+										return (
+											<Paper
+												key={cartItemKey(
+													item.product.id,
+													item.selectedColorName,
+												)}
+												elevation={0}
+												sx={{
+													p: 2,
+													mb: 2,
+													display: "flex",
+													alignItems: "center",
+													borderRadius: "16px",
+													border: 1,
+													borderColor: "divider",
+												}}
+											>
+												<Box
+													component="img"
+													src={
+														item.product.colors.find(
+															(c) =>
+																c.name ===
+																item.selectedColorName,
+														)?.imageUrl
+													}
+													sx={{
+														width: 64,
+														height: 64,
+														borderRadius: "12px",
+														mr: 2,
+														objectFit: "cover",
+													}}
+												/>
+												<Box sx={{ flexGrow: 1 }}>
+													<Typography
+														variant="body2"
+														sx={{ fontWeight: 600 }}
+													>
+														{item.product.name}
+													</Typography>
+													<Typography
+														variant="caption"
+														color="text.secondary"
+													>
+														{item.selectedColorName}
+													</Typography>
+
+													<Box
+														sx={{
+															display: "flex",
+															alignItems: "center",
+															mt: 1,
+															border: 1,
+															borderColor: "divider",
+															borderRadius: "12px",
+															width: "fit-content",
+															overflow: "hidden",
+														}}
+													>
+														<IconButton
+															size="small"
+															onClick={() =>
+																handleQtyChange(
+																	item,
+																	-1,
+																)
+															}
+														>
+															<RemoveIcon fontSize="small" />
+														</IconButton>
+														<Typography
+															variant="body2"
+															sx={{
+																px: 1.5,
+																fontWeight: 700,
+																minWidth: 24,
+																textAlign: "center",
+															}}
+														>
+															{item.quantity}
+														</Typography>
+														<IconButton
+															size="small"
+															disabled={!!atMax}
+															onClick={() =>
+																handleQtyChange(
+																	item,
+																	1,
+																)
+															}
+														>
+															<AddIcon fontSize="small" />
+														</IconButton>
+													</Box>
+													{live && (
+														<Typography
+															variant="caption"
+															color="text.secondary"
+															sx={{ mt: 0.5, display: "block" }}
+														>
+															{remaining} in stock
+														</Typography>
+													)}
+												</Box>
 												<Box
 													sx={{
 														display: "flex",
-														alignItems: "center",
-														mt: 1,
-														border: 1,
-														borderColor: "divider",
-														borderRadius: 1,
-														width: "fit-content",
+														flexDirection: "column",
+														alignItems: "flex-end",
 													}}
 												>
-													<IconButton
-														size="small"
-														onClick={() =>
-															dispatch({
-																type: "UPDATE_CART_QTY",
-																payload: {
-																	productId:
-																		item
-																			.product
-																			.id,
-																	quantity:
-																		item.quantity -
-																		1,
-																},
-															})
-														}
-													>
-														<RemoveIcon fontSize="small" />
-													</IconButton>
 													<Typography
 														variant="body2"
 														sx={{
-															px: 1,
-															fontWeight: 600,
+															mb: 1,
+															fontWeight: 700,
+															color: "primary.main",
 														}}
 													>
-														{item.quantity}
+														$
+														{(
+															item.product.price *
+															item.quantity
+														).toFixed(2)}
 													</Typography>
 													<IconButton
 														size="small"
+														color="error"
 														onClick={() =>
 															dispatch({
-																type: "UPDATE_CART_QTY",
+																type: "REMOVE_FROM_CART",
 																payload: {
 																	productId:
-																		item
-																			.product
-																			.id,
-																	quantity:
-																		item.quantity +
-																		1,
+																		item.product.id,
+																	selectedColorName:
+																		item.selectedColorName,
 																},
 															})
 														}
 													>
-														<AddIcon fontSize="small" />
+														<DeleteOutlinedIcon fontSize="small" />
 													</IconButton>
 												</Box>
-											</Box>
-											<Box
-												sx={{
-													display: "flex",
-													flexDirection: "column",
-													alignItems: "flex-end",
-												}}
-											>
-												<Typography
-													variant="body2"
-													sx={{
-														mb: 1,
-														fontWeight: 700,
-													}}
-												>
-													$
-													{(
-														item.product.price *
-														item.quantity
-													).toFixed(2)}
-												</Typography>
-												<IconButton
-													size="small"
-													color="error"
-													onClick={() =>
-														dispatch({
-															type: "REMOVE_FROM_CART",
-															payload:
-																item.product.id,
-														})
-													}
-												>
-													<DeleteOutlinedIcon />
-												</IconButton>
-											</Box>
-										</Paper>
-									))
+											</Paper>
+										);
+									})
 								)}
 							</>
 						)}
 
 						{activeStep === 1 && (
 							<Box>
-								<Typography variant="subtitle2" sx={{ mb: 2 }}>
+								<Typography
+									variant="subtitle2"
+									sx={{ mb: 2, fontWeight: 600 }}
+								>
 									Select items to checkout:
 								</Typography>
-								<List>
+								<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
 									{state.cart.map((item) => {
+										const key = cartItemKey(
+											item.product.id,
+											item.selectedColorName,
+										);
 										const isAdded = checkoutItems.some(
 											(i) =>
-												i.product.id ===
-												item.product.id,
+												cartItemKey(
+													i.product.id,
+													i.selectedColorName,
+												) === key,
 										);
 										return (
-											<ListItem
-												key={item.product.id}
-												disablePadding
-												sx={{
-													border: 1,
-													borderColor: "divider",
-													borderRadius: 2,
-													mb: 1,
-												}}
-											>
-												<ListItemButton
-													onClick={() =>
-														handleToggle(item)
-													}
-												>
-													<ListItemIcon>
-														<Checkbox
-															edge="start"
-															checked={isAdded}
-															tabIndex={-1}
-															disableRipple
-														/>
-													</ListItemIcon>
-													<ListItemText
-														primary={
-															item.product.name
-														}
-														secondary={`Qty: ${item.quantity} • $${(item.product.price * item.quantity).toFixed(2)}`}
-													/>
-													{isAdded ? (
-														<ArrowBackIcon
-															fontSize="small"
-															color="error"
-														/>
-													) : (
-														<ArrowForwardIcon
-															fontSize="small"
-															color="primary"
-														/>
-													)}
-												</ListItemButton>
-											</ListItem>
+											<Chip
+												key={key}
+												label={`${item.product.name} (×${item.quantity})`}
+												clickable
+												color={isAdded ? "primary" : "default"}
+												variant={isAdded ? "filled" : "outlined"}
+												onClick={() =>
+													handleToggleCheckout(item)
+												}
+												sx={{ py: 2.5, height: "auto" }}
+											/>
 										);
 									})}
-								</List>
+								</Box>
 							</Box>
 						)}
 
 						{activeStep === 2 && (
 							<Box>
-								<Typography variant="h6" gutterBottom>
+								<Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
 									Checkout Details
 								</Typography>
 								<Divider sx={{ mb: 3 }} />
 
-								<Typography variant="subtitle2" gutterBottom>
+								<Typography
+									variant="subtitle2"
+									gutterBottom
+									sx={{ fontWeight: 600 }}
+								>
 									1. Select Delivery Type
 								</Typography>
 								<ToggleButtonGroup
@@ -337,27 +381,27 @@ export default function CartDrawer({
 										val && setDeliveryType(val)
 									}
 									size="small"
-									sx={{
-										mb: 4,
-										width: "100%",
-										display: "flex",
-									}}
+									sx={{ mb: 4, width: "100%", display: "flex", gap: 1 }}
 								>
 									<ToggleButton
 										value="standard"
-										sx={{ flex: 1, py: 1.5 }}
+										sx={{ flex: 1, py: 1.5, borderRadius: "12px !important" }}
 									>
-										Standard (5-7 Days)
+										Standard (5–7 Days)
 									</ToggleButton>
 									<ToggleButton
 										value="express"
-										sx={{ flex: 1, py: 1.5 }}
+										sx={{ flex: 1, py: 1.5, borderRadius: "12px !important" }}
 									>
 										Express (2 Days)
 									</ToggleButton>
 								</ToggleButtonGroup>
 
-								<Typography variant="subtitle2" gutterBottom>
+								<Typography
+									variant="subtitle2"
+									gutterBottom
+									sx={{ fontWeight: 600 }}
+								>
 									2. Choose Delivery Date
 								</Typography>
 								<DatePicker
@@ -376,13 +420,23 @@ export default function CartDrawer({
 									}}
 								/>
 
-								<Typography variant="subtitle2" gutterBottom>
+								<Typography
+									variant="subtitle2"
+									gutterBottom
+									sx={{ fontWeight: 600 }}
+								>
 									3. Order Summary
 								</Typography>
-								<Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+								<Paper
+									variant="outlined"
+									sx={{ p: 2, mb: 3, borderRadius: "16px" }}
+								>
 									{checkoutItems.map((item) => (
 										<Box
-											key={item.product.id}
+											key={cartItemKey(
+												item.product.id,
+												item.selectedColorName,
+											)}
 											sx={{
 												display: "flex",
 												justifyContent: "space-between",
@@ -390,7 +444,7 @@ export default function CartDrawer({
 											}}
 										>
 											<Typography variant="body2">
-												{item.product.name} x{" "}
+												{item.product.name} ×{" "}
 												{item.quantity}
 											</Typography>
 											<Typography variant="body2">
@@ -450,8 +504,10 @@ export default function CartDrawer({
 										justifyContent: "space-between",
 									}}
 								>
-									<Typography variant="h6">Total</Typography>
-									<Typography variant="h6" color="primary">
+									<Typography variant="h6" sx={{ fontWeight: 700 }}>
+										Total
+									</Typography>
+									<Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
 										$
 										{checkoutItems
 											.reduce(
@@ -469,7 +525,7 @@ export default function CartDrawer({
 									color="secondary"
 									fullWidth
 									size="large"
-									sx={{ mt: 3 }}
+									sx={{ mt: 3, borderRadius: "14px", py: 1.5 }}
 								>
 									Pay Now
 								</Button>
@@ -484,7 +540,7 @@ export default function CartDrawer({
 							{activeStep === 0 && (
 								<Typography
 									variant="h6"
-									sx={{ mb: 2, textAlign: "right" }}
+									sx={{ mb: 2, textAlign: "right", fontWeight: 700 }}
 								>
 									Total: ${totalPrice.toFixed(2)}
 								</Typography>
@@ -505,6 +561,10 @@ export default function CartDrawer({
 									<Button
 										variant="contained"
 										onClick={handleNext}
+										disabled={
+											activeStep === 1 &&
+											checkoutItems.length === 0
+										}
 									>
 										{activeStep === 0
 											? "Proceed to Selection"

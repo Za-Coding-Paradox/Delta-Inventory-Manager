@@ -20,6 +20,7 @@ export interface Product {
 	tags: string[];
 	dateAdded: string; // ISO string (for date-range filtering & localStorage safety)
 	status: ProductStatus;
+	stockQuantity: number;
 	colors: ProductColor[]; // Array of available colors with their specific images
 	defaultImageUrl: string; // Fallback image if no color is selected
 	category: string;
@@ -185,11 +186,19 @@ export type AppAction =
 
 	// Cart
 	| { type: "ADD_TO_CART"; payload: CartItem }
-	| { type: "REMOVE_FROM_CART"; payload: string } // payload is productId
+	| {
+			type: "REMOVE_FROM_CART";
+			payload: { productId: string; selectedColorName: string };
+	  }
 	| {
 			type: "UPDATE_CART_QTY";
-			payload: { productId: string; quantity: number };
+			payload: {
+				productId: string;
+				selectedColorName: string;
+				quantity: number;
+			};
 	  }
+	| { type: "SYNC_CART_WISHLIST" }
 	| { type: "CLEAR_CART" }
 	| { type: "SET_CART_SUGGESTIONS"; payload: CartSuggestion[] }
 

@@ -4,8 +4,6 @@ import {
 	Typography,
 	Slider,
 	Box,
-	Switch,
-	FormControlLabel,
 	Button,
 	Divider,
 	Stack,
@@ -14,6 +12,11 @@ import {
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useAppContext } from "../../context/app-context";
+
+const AVAILABILITY_OPTIONS = [
+	{ label: "All Items", value: false },
+	{ label: "In Stock", value: true },
+] as const;
 
 const useUniqueTags = () => {
 	const { state } = useAppContext();
@@ -67,11 +70,15 @@ export default function FilterSidebar() {
 				elevation={0}
 				sx={{
 					p: 3,
-					borderRadius: "16px",
+					borderRadius: "20px",
 					position: "sticky",
-					top: 24,
+					top: 88,
 					border: 1,
 					borderColor: "divider",
+					background: (t) =>
+						t.palette.mode === "light"
+							? "linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)"
+							: "background.paper",
 				}}
 			>
 				<Box
@@ -87,37 +94,49 @@ export default function FilterSidebar() {
 					</Typography>
 					<Button
 						size="small"
+						variant="text"
+						color="secondary"
 						onClick={() => dispatch({ type: "RESET_FILTERS" })}
 					>
 						Clear All
 					</Button>
 				</Box>
 
-				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+				<Typography
+					variant="subtitle2"
+					gutterBottom
+					sx={{ mb: 1.5, fontWeight: 600 }}
+				>
 					Availability
 				</Typography>
-				<FormControlLabel
-					control={
-						<Switch
-							checked={filters.showInStockOnly}
-							onChange={(e) =>
-								dispatch({
-									type: "SET_FILTERS",
-									payload: {
-										showInStockOnly: e.target.checked,
-									},
-								})
-							}
-							color="primary"
-						/>
-					}
-					label="In Stock Only"
-					sx={{ mb: 3, ml: 0 }}
-				/>
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3 }}>
+					{AVAILABILITY_OPTIONS.map((opt) => {
+						const selected = filters.showInStockOnly === opt.value;
+						return (
+							<Chip
+								key={opt.label}
+								label={opt.label}
+								clickable
+								color={selected ? "primary" : "default"}
+								variant={selected ? "filled" : "outlined"}
+								onClick={() =>
+									dispatch({
+										type: "SET_FILTERS",
+										payload: { showInStockOnly: opt.value },
+									})
+								}
+							/>
+						);
+					})}
+				</Box>
 
 				<Divider sx={{ mb: 3 }} />
 
-				<Typography variant="subtitle2" gutterBottom>
+				<Typography
+					variant="subtitle2"
+					gutterBottom
+					sx={{ fontWeight: 600 }}
+				>
 					Price Range
 				</Typography>
 				<Slider
@@ -131,23 +150,28 @@ export default function FilterSidebar() {
 						})
 					}
 					valueLabelDisplay="auto"
+					valueLabelFormat={(v) => `$${v}`}
 					min={0}
 					max={250}
 					step={10}
-					sx={{ mt: 2 }}
+					sx={{ mt: 2, mb: 1 }}
 				/>
 				<Typography
 					variant="body2"
 					color="text.secondary"
 					sx={{ mb: 3 }}
 				>
-					${filters.priceRange ? filters.priceRange[0] : 0} - $
+					${filters.priceRange ? filters.priceRange[0] : 0} – $
 					{filters.priceRange ? filters.priceRange[1] : 250}
 				</Typography>
 
 				<Divider sx={{ mb: 3 }} />
 
-				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+				<Typography
+					variant="subtitle2"
+					gutterBottom
+					sx={{ mb: 1.5, fontWeight: 600 }}
+				>
 					Date Added
 				</Typography>
 				<Stack spacing={2} sx={{ mb: 3 }}>
@@ -156,7 +180,18 @@ export default function FilterSidebar() {
 						value={startDate}
 						onChange={handleStartDateChange}
 						slotProps={{
-							textField: { size: "small", fullWidth: true },
+							textField: {
+								size: "small",
+								fullWidth: true,
+								sx: {
+									"& .MuiOutlinedInput-root": {
+										borderRadius: "14px",
+									},
+								},
+							},
+							popper: {
+								sx: { zIndex: 1400 },
+							},
 						}}
 					/>
 					<DatePicker
@@ -164,15 +199,29 @@ export default function FilterSidebar() {
 						value={endDate}
 						onChange={handleEndDateChange}
 						slotProps={{
-							textField: { size: "small", fullWidth: true },
+							textField: {
+								size: "small",
+								fullWidth: true,
+								sx: {
+									"& .MuiOutlinedInput-root": {
+										borderRadius: "14px",
+									},
+								},
+							},
+							popper: {
+								sx: { zIndex: 1400 },
+							},
 						}}
 					/>
 				</Stack>
 
 				<Divider sx={{ mb: 3 }} />
 
-				{/* Tags converted to clickable Chip buttons */}
-				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+				<Typography
+					variant="subtitle2"
+					gutterBottom
+					sx={{ mb: 1.5, fontWeight: 600 }}
+				>
 					Tags
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -184,11 +233,9 @@ export default function FilterSidebar() {
 								label={tag}
 								clickable
 								color={selected ? "primary" : "default"}
+								variant={selected ? "filled" : "outlined"}
 								onClick={() => handleTagToggle(tag)}
-								sx={{
-									textTransform: "capitalize",
-									fontWeight: 600,
-								}}
+								sx={{ textTransform: "capitalize" }}
 							/>
 						);
 					})}
