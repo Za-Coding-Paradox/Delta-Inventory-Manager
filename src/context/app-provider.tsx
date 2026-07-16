@@ -6,6 +6,7 @@ import type {
 	CartItem,
 	CartSuggestion,
 	Product,
+	AdminNotification,
 } from "../config/types";
 import { AppContext } from "./app-context";
 import {
@@ -17,6 +18,8 @@ import {
 	DUMMY_SUPPLY_CHAIN_NODES,
 	DUMMY_SUPPLY_CHAIN_EDGES,
 	DUMMY_MESSAGES,
+	DUMMY_ORDERS,
+	DUMMY_REVIEWS,
 } from "../config/constants";
 import {
 	canAddToCart,
@@ -73,11 +76,14 @@ const initialState: AppState = {
 		category: null,
 		aiMatchedIds: null,
 	},
+	// Orders & Reviews — derived from state, drive all admin analytics
+	orders: loadFromStorage(STORAGE_KEYS.ORDERS, DUMMY_ORDERS),
+	reviews: loadFromStorage(STORAGE_KEYS.REVIEWS, DUMMY_REVIEWS),
 	notifications: loadFromStorage(
 		STORAGE_KEYS.NOTIFICATIONS,
 		DUMMY_NOTIFICATIONS,
 	),
-	messages: DUMMY_MESSAGES,
+	messages: loadFromStorage(STORAGE_KEYS.MESSAGES, DUMMY_MESSAGES),
 	calendarEvents: loadFromStorage(
 		"ecom_calendar_events",
 		DUMMY_CALENDAR_EVENTS,
@@ -146,9 +152,18 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 						},
 					];
 
+			const newNotification: AdminNotification = {
+				id: `notif_cart_${Date.now()}_${Math.random()}`,
+				type: "INFO",
+				message: `A user added ${addQty}x ${liveProduct.name} to their cart.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+
 			return {
 				...state,
 				cart: syncCartWithProducts(nextCart, state.products),
+				notifications: [newNotification, ...state.notifications],
 			};
 		}
 
@@ -211,11 +226,20 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			const exists = state.wishlist.some(
 				(p) => p.id === liveProduct.id,
 			);
+			const newNotification: AdminNotification = {
+				id: `notif_wishlist_${Date.now()}_${Math.random()}`,
+				type: "INFO",
+				message: `A user ${exists ? 'removed' : 'added'} ${liveProduct.name} ${exists ? 'from' : 'to'} their wishlist.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+
 			return {
 				...state,
 				wishlist: exists
 					? state.wishlist.filter((p) => p.id !== liveProduct.id)
 					: [...state.wishlist, liveProduct],
+				notifications: [newNotification, ...state.notifications],
 			};
 		}
 
@@ -303,6 +327,169 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			};
 		}
 
+		case "PLACE_ORDER": {
+			let newNotifications = [...state.notifications];
+			const updatedProducts = state.products.map((p) => {
+				const orderItem = action.payload.items.find((i) => i.productId === p.id);
+				if (!orderItem) return p;
+				const newStock = Math.max(0, p.stockQuantity - orderItem.quantity);
+				let newStatus = p.status;
+				if (newStock === 0) newStatus = "OUT_OF_STOCK";
+
+				if (newStock > 0 && newStock <= 5) {
+					newNotifications.unshift({
+						id: `notif_low_stock_${p.id}_${Date.now()}`,
+						type: "ALERT" as const,
+						title: "Low Stock Warning",
+						message: `${p.name} is running low on stock (${newStock} remaining).`,
+						timestamp: action.payload.timestamp,
+						read: false,
+					});
+				}
+
+				return { ...p, stockQuantity: newStock, status: newStatus };
+			});
+
+			// Build the order notification
+			const orderNotif = {
+				id: `notif_order_${action.payload.id}`,
+				type: "SUCCESS" as const,
+				title: "New Order Placed",
+				message: `Order #${action.payload.id.slice(-4).toUpperCase()} placed by ${action.payload.customerName} — $${action.payload.total.toFixed(2)} (${action.payload.deliveryType}).`,
+				timestamp: action.payload.timestamp,
+				read: false,
+			};
+			newNotifications.unshift(orderNotif);
+
+			let newCalendarEvents = [...state.calendarEvents];
+			if (action.payload.deliveryDate) {
+				newCalendarEvents.push({
+					id: `evt_deliv_${action.payload.id}`,
+					date: action.payload.deliveryDate,
+					title: `Delivery: Order #${action.payload.id.slice(-4).toUpperCase()}`,
+					type: "LAUNCH" as const,
+					description: `Delivery for ${action.payload.customerName}.`,
+				});
+			}
+
+			return {
+				...state,
+				products: updatedProducts,
+				cart: syncCartWithProducts(state.cart, updatedProducts),
+				wishlist: syncWishlistWithProducts(state.wishlist, updatedProducts),
+				orders: [action.payload, ...state.orders],
+				notifications: newNotifications,
+				calendarEvents: newCalendarEvents,
+				snackbarMessage: `Order placed successfully! Total: $${action.payload.total.toFixed(2)}`,
+			};
+		}
+
+		case "ADD_REVIEW": {
+			const reviewNotif = {
+				id: `notif_review_${action.payload.id}`,
+				type: "INFO" as const,
+				title: "New Product Review",
+				message: `${action.payload.customerName} left a ${action.payload.rating}-star review on "${action.payload.productName}".`,
+				timestamp: action.payload.timestamp,
+				read: false,
+			};
+			return {
+				...state,
+				reviews: [action.payload, ...state.reviews],
+				notifications: [reviewNotif, ...state.notifications],
+			};
+		}
+
+		case "UPDATE_ORDER_STATUS": {
+			const order = state.orders.find((o) => o.id === action.payload.orderId);
+			let updatedProducts = state.products;
+
+			if (order && action.payload.status === "CANCELLED" && order.status !== "CANCELLED") {
+				// Restock items
+				updatedProducts = state.products.map((p) => {
+					const orderItem = order.items.find((i) => i.productId === p.id);
+					if (!orderItem) return p;
+					const newStock = p.stockQuantity + orderItem.quantity;
+					return {
+						...p,
+						stockQuantity: newStock,
+						status: newStock > 0 && p.status === "OUT_OF_STOCK" ? "IN_STOCK" : p.status,
+					};
+				});
+			} else if (order && order.status === "CANCELLED" && action.payload.status !== "CANCELLED") {
+				// Undo restock if status changed from cancelled to something else
+				updatedProducts = state.products.map((p) => {
+					const orderItem = order.items.find((i) => i.productId === p.id);
+					if (!orderItem) return p;
+					const newStock = Math.max(0, p.stockQuantity - orderItem.quantity);
+					return {
+						...p,
+						stockQuantity: newStock,
+						status: newStock === 0 ? "OUT_OF_STOCK" : p.status,
+					};
+				});
+			}
+
+			const orderNotif = {
+				id: `notif_order_update_${action.payload.orderId}_${Date.now()}`,
+				type: "INFO" as const,
+				title: "Order Status Updated",
+				message: `Order #${action.payload.orderId.slice(-4).toUpperCase()} is now ${action.payload.status}.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+
+			return {
+				...state,
+				products: updatedProducts,
+				cart: updatedProducts !== state.products ? syncCartWithProducts(state.cart, updatedProducts) : state.cart,
+				wishlist: updatedProducts !== state.products ? syncWishlistWithProducts(state.wishlist, updatedProducts) : state.wishlist,
+				orders: state.orders.map((o) =>
+					o.id === action.payload.orderId
+						? { ...o, status: action.payload.status }
+						: o,
+				),
+				notifications: [orderNotif, ...state.notifications],
+				snackbarMessage: `Order status updated to ${action.payload.status}`,
+			};
+		}
+
+		case "UPDATE_ORDER": {
+			const orderNotif = {
+				id: `notif_order_update_${action.payload.id}_${Date.now()}`,
+				type: "INFO" as const,
+				title: "Order Updated",
+				message: `Order #${action.payload.id.slice(-4).toUpperCase()} has been manually updated.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+
+			return {
+				...state,
+				orders: state.orders.map((o) => (o.id === action.payload.id ? action.payload : o)),
+				notifications: [orderNotif, ...state.notifications],
+				snackbarMessage: `Order #${action.payload.id.slice(-4).toUpperCase()} updated successfully!`,
+			};
+		}
+
+		case "DELETE_ORDER": {
+			const orderNotif = {
+				id: `notif_order_delete_${action.payload}_${Date.now()}`,
+				type: "ALERT" as const,
+				title: "Order Deleted",
+				message: `Order #${action.payload.slice(-4).toUpperCase()} has been permanently deleted.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+
+			return {
+				...state,
+				orders: state.orders.filter((o) => o.id !== action.payload),
+				notifications: [orderNotif, ...state.notifications],
+				snackbarMessage: `Order #${action.payload.slice(-4).toUpperCase()} deleted.`,
+			};
+		}
+
 		case "SYNC_CART_WISHLIST":
 			return {
 				...state,
@@ -327,6 +514,12 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				),
 			};
 
+		case "DELETE_NOTIFICATION":
+			return {
+				...state,
+				notifications: state.notifications.filter((n) => n.id !== action.payload),
+			};
+
 		case "CLEAR_NOTIFICATIONS":
 			return { ...state, notifications: [] };
 			
@@ -340,6 +533,23 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 					m.id === action.payload ? { ...m, read: true } : m,
 				),
 			};
+
+		case "ADD_MESSAGE": {
+			const notif = {
+				id: `notif_msg_${action.payload.id}`,
+				type: "INFO" as const,
+				title: "New Message",
+				message: `New message received from ${action.payload.sender}.`,
+				timestamp: action.payload.timestamp,
+				read: false,
+			};
+			return {
+				...state,
+				messages: [action.payload, ...state.messages],
+				notifications: [notif, ...state.notifications],
+				snackbarMessage: "Message sent successfully!",
+			};
+		}
 
 		case "ADD_CALENDAR_EVENT":
 			return {
@@ -369,15 +579,35 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		case "SET_SUPPLY_CHAIN_EDGES":
 			return { ...state, supplyChainEdges: action.payload };
 
-		case "UPDATE_SUPPLY_CHAIN_NODE":
+		case "UPDATE_SUPPLY_CHAIN_NODE": {
+			const notif = {
+				id: `notif_sc_update_${Date.now()}`,
+				type: "INFO" as const,
+				title: "Supply Chain Node Updated",
+				message: `Node "${action.payload.data.label}" details were updated.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				supplyChainNodes: state.supplyChainNodes.map((n) =>
 					n.id === action.payload.id ? action.payload : n,
 				),
+				notifications: [notif, ...state.notifications],
+				snackbarMessage: "Node updated successfully",
 			};
+		}
 
-		case "DELETE_SUPPLY_CHAIN_NODE":
+		case "DELETE_SUPPLY_CHAIN_NODE": {
+			const nodeToDelete = state.supplyChainNodes.find((n) => n.id === action.payload);
+			const notif = {
+				id: `notif_sc_delete_${Date.now()}`,
+				type: "ALERT" as const,
+				title: "Supply Chain Node Deleted",
+				message: `Node "${nodeToDelete?.data.label || action.payload}" was removed.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				supplyChainNodes: state.supplyChainNodes.filter(
@@ -387,27 +617,61 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 					(e) =>
 						e.source !== action.payload && e.target !== action.payload,
 				),
+				notifications: [notif, ...state.notifications],
+				snackbarMessage: "Node deleted successfully",
 			};
+		}
 
-		case "ADD_SUPPLY_CHAIN_NODE":
+		case "ADD_SUPPLY_CHAIN_NODE": {
+			const notif = {
+				id: `notif_sc_add_${Date.now()}`,
+				type: "SUCCESS" as const,
+				title: "Supply Chain Node Added",
+				message: `Node "${action.payload.data.label}" was added.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				supplyChainNodes: [...state.supplyChainNodes, action.payload],
+				notifications: [notif, ...state.notifications],
+				snackbarMessage: "Node added successfully",
 			};
+		}
 
-		case "ADD_SUPPLY_CHAIN_EDGE":
+		case "ADD_SUPPLY_CHAIN_EDGE": {
+			const notif = {
+				id: `notif_sc_edge_add_${Date.now()}`,
+				type: "SUCCESS" as const,
+				title: "Supply Chain Connection Added",
+				message: `A new connection was established between nodes.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				supplyChainEdges: [...state.supplyChainEdges, action.payload],
+				notifications: [notif, ...state.notifications],
 			};
+		}
 
-		case "DELETE_SUPPLY_CHAIN_EDGE":
+		case "DELETE_SUPPLY_CHAIN_EDGE": {
+			const notif = {
+				id: `notif_sc_edge_delete_${Date.now()}`,
+				type: "ALERT" as const,
+				title: "Supply Chain Connection Removed",
+				message: `A connection was removed between nodes.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				supplyChainEdges: state.supplyChainEdges.filter(
 					(e) => e.id !== action.payload,
 				),
+				notifications: [notif, ...state.notifications],
 			};
+		}
 
 		default:
 			return state;
@@ -451,6 +715,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 			JSON.stringify(state.notifications),
 		);
 	}, [state.notifications]);
+
+	useEffect(() => {
+		localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
+	}, [state.orders]);
+
+	useEffect(() => {
+		localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(state.reviews));
+	}, [state.reviews]);
+
+	useEffect(() => {
+		localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(state.messages));
+	}, [state.messages]);
 
 	useEffect(() => {
 		localStorage.setItem(
@@ -503,7 +779,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 		});
 
 		const suggestions: CartSuggestion[] = state.products
-			.filter((p) => !cartProductIds.includes(p.id))
+			.filter((p) => !cartProductIds.includes(p.id) && p.status === "IN_STOCK")
 			.map((product) => {
 				let score = 0;
 				let reason = "";

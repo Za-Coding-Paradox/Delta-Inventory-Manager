@@ -17,6 +17,7 @@ import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
 import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import ReceiptRoundedIcon from "@mui/icons-material/ReceiptRounded";
 import { motion, AnimatePresence } from "framer-motion";
 
 const NAV_ITEMS = [
@@ -30,6 +31,11 @@ const NAV_ITEMS = [
 		label: "Products",
 		icon: <InventoryRoundedIcon />,
 		path: "/admin/products",
+	},
+	{
+		label: "Orders",
+		icon: <ReceiptRoundedIcon />,
+		path: "/admin/orders",
 	},
 	{
 		label: "Supply Chain",
@@ -47,7 +53,6 @@ interface AdminSidebarProps {
 	collapsed: boolean;
 }
 
-import { useState } from "react";
 
 export default function AdminSidebar({ collapsed }: AdminSidebarProps) {
 	const navigate = useNavigate();

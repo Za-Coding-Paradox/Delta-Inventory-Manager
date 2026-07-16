@@ -1,5 +1,5 @@
 // src/components/admin-page/dashboard/notifications-panel.tsx
-import { Box, Card, Typography, List, ListItem, ListItemIcon, ListItemText, IconButton, alpha, Tooltip } from "@mui/material";
+import { Box, Card, Typography, List, ListItem, ListItemIcon, IconButton, alpha, Tooltip } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import ErrorRoundedIcon from "@mui/icons-material/ErrorRounded";
@@ -23,7 +23,7 @@ export default function NotificationsPanel() {
 	const isDark = theme.palette.mode === "dark";
 
 	return (
-		<Card variant="widget" sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
+		<Card variant="widget" sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, maxHeight: 170 }}>
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
 				<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 					<NotificationsRoundedIcon sx={{ color: "text.secondary" }} />
@@ -32,7 +32,7 @@ export default function NotificationsPanel() {
 					</Typography>
 				</Box>
 			</Box>
-			<Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+			<Box sx={{ flex: 1, overflowY: "auto", pr: 1, maxHeight: 80 }}>
 				{state.notifications.length === 0 ? (
 					<Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
 						No new notifications
@@ -56,25 +56,24 @@ export default function NotificationsPanel() {
 											backgroundColor: notif.read ? "transparent" : alpha(theme.palette.primary.main, isDark ? 0.1 : 0.05),
 											border: `1px solid ${notif.read ? theme.palette.divider : alpha(theme.palette.primary.main, 0.2)}`,
 											alignItems: "flex-start",
+											boxShadow: notif.read ? "none" : theme.shadows[1],
+											transition: "background-color 0.2s, box-shadow 0.2s",
+											"&:hover": {
+												backgroundColor: alpha(theme.palette.primary.main, isDark ? 0.15 : 0.08),
+											}
 										}}
 									>
 										<ListItemIcon sx={{ minWidth: 36, mt: 0.5 }}>
 											<NotifIcon type={notif.type} />
 										</ListItemIcon>
-										<ListItemText
-											primaryTypographyProps={{ component: "div" }}
-											secondaryTypographyProps={{ component: "div" }}
-											primary={
-												<Typography variant="body2" sx={{ fontWeight: notif.read ? 500 : 700 }} color="text.primary">
-													{notif.message}
-												</Typography>
-											}
-											secondary={
-												<Typography variant="caption" color="text.secondary">
-													{formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
-												</Typography>
-											}
-										/>
+										<Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+											<Typography variant="body2" sx={{ fontWeight: notif.read ? 500 : 700 }} color="text.primary">
+												{notif.message}
+											</Typography>
+											<Typography variant="caption" color="text.secondary">
+												{formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
+											</Typography>
+										</Box>
 										<Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
 											{!notif.read && (
 												<Tooltip title="Mark as read">

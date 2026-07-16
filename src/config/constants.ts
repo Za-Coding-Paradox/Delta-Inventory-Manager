@@ -12,6 +12,8 @@ import type {
 	SCNode,
 	SCEdge,
 	Message,
+	Order,
+	Review,
 } from "./types";
 
 /* ==========================================================================
@@ -23,6 +25,9 @@ export const STORAGE_KEYS = {
 	THEME: "ecom_theme",
 	PRODUCTS: "ecom_products",
 	NOTIFICATIONS: "ecom_notifications",
+	ORDERS: "ecom_orders",
+	REVIEWS: "ecom_reviews",
+	MESSAGES: "ecom_messages",
 };
 
 /* ==========================================================================
@@ -40,171 +45,159 @@ export const COLOR_COMPLEMENTS: Record<string, string[]> = {
 /* ==========================================================================
  * 3. DUMMY PRODUCT DATA
  * ========================================================================== */
-export const DUMMY_PRODUCTS: Product[] = [
+const BASE_PRODUCTS: Product[] = [
 	{
 		id: "prod_1",
-		name: "Classic White Chino Pants",
-		description:
-			"Comfortable and breathable cotton chinos, perfect for summer outings.",
-		price: 49.99,
-		tags: ["pants", "summer", "casual"],
+		name: "Aura Heavyweight Crewneck",
+		description: "Premium heavyweight organic cotton sweatshirt with a soft brushed fleece interior. Relaxed fit with dropped shoulders.",
+		price: 79.99,
+		tags: ["sweatshirt", "hoodie", "cozy"],
 		dateAdded: new Date(2024, 2, 15).toISOString(),
 		status: "IN_STOCK",
-		stockQuantity: 24,
+		stockQuantity: 32,
 		colors: [
 			{
-				name: "White",
-				hex: "#FFFFFF",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=White+Pants",
+				name: "Sage Green",
+				hex: "#7D8C7B",
+				imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop",
 			},
 			{
-				name: "Navy",
-				hex: "#001F3F",
-				imageUrl: "https://placehold.co/400x400/png?text=Navy+Pants",
+				name: "Charcoal",
+				hex: "#363636",
+				imageUrl: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl: "https://placehold.co/400x400/png?text=White+Pants",
-		category: "Bottoms",
+		defaultImageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop",
+		category: "Tops",
 	},
 	{
 		id: "prod_2",
-		name: "Teal Cotton Shirt",
-		description:
-			"A vibrant teal shirt that pairs perfectly with light-colored pants.",
-		price: 39.99,
+		name: "Minimalist Supima Tee",
+		description: "A premium wardrobe staple made from ultra-soft long-staple Supima cotton. Classic fit, durable ribbed crew neck, and breathable weave.",
+		price: 29.99,
 		tags: ["shirts", "summer", "casual"],
 		dateAdded: new Date(2024, 3, 5).toISOString(),
 		status: "IN_STOCK",
-		stockQuantity: 18,
+		stockQuantity: 45,
 		colors: [
 			{
-				name: "Teal",
-				hex: "#008080",
-				imageUrl: "https://placehold.co/400x400/png?text=Teal+Shirt",
+				name: "Off-White",
+				hex: "#F5F2EB",
+				imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop",
 			},
 			{
-				name: "Black",
-				hex: "#000000",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=Black+Shirt",
+				name: "Jet Black",
+				hex: "#111111",
+				imageUrl: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl: "https://placehold.co/400x400/png?text=Teal+Shirt",
+		defaultImageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop",
 		category: "Tops",
 	},
 	{
 		id: "prod_3",
-		name: "Winter Wool Coat (Coming Soon)",
-		description: "Heavy-duty wool coat for the upcoming winter season.",
-		price: 199.99,
-		tags: ["coats", "winter", "formal"],
+		name: "Classic Tailored Chinos",
+		description: "Tailored chinos cut from mid-weight stretch twill cotton. Perfect transition piece from casual workdays to weekend getaways.",
+		price: 69.99,
+		tags: ["pants", "chinos", "classic"],
 		dateAdded: new Date(2024, 1, 10).toISOString(),
-		status: "COMING_SOON",
-		stockQuantity: 0,
+		status: "IN_STOCK",
+		stockQuantity: 28,
 		colors: [
 			{
-				name: "Black",
-				hex: "#000000",
-				imageUrl: "https://placehold.co/400x400/png?text=Black+Coat",
+				name: "Khaki",
+				hex: "#C2B280",
+				imageUrl: "https://images.unsplash.com/photo-1479064555552-3ef4979f8908?q=80&w=600&auto=format&fit=crop",
+			},
+			{
+				name: "Olive",
+				hex: "#556B2F",
+				imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl: "https://placehold.co/400x400/png?text=Black+Coat",
-		category: "Outerwear",
+		defaultImageUrl: "https://images.unsplash.com/photo-1479064555552-3ef4979f8908?q=80&w=600&auto=format&fit=crop",
+		category: "Bottoms",
 	},
 	{
 		id: "prod_4",
-		name: "Coral Summer Dress",
-		description: "Light and airy coral dress for beach days.",
+		name: "Relaxed Corduroy Overshirt",
+		description: "Classic vintage-inspired button-up shirt crafted from soft 12-wale corduroy cotton. Features double chest pockets.",
 		price: 59.99,
-		tags: ["dresses", "summer", "casual"],
+		tags: ["shirts", "outerwear", "casual"],
 		dateAdded: new Date(2024, 4, 1).toISOString(),
-		status: "OUT_OF_STOCK",
-		stockQuantity: 0,
+		status: "IN_STOCK",
+		stockQuantity: 18,
 		colors: [
 			{
-				name: "Coral",
-				hex: "#FF7F50",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=Coral+Dress",
+				name: "Tan",
+				hex: "#D2B48C",
+				imageUrl: "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=600&auto=format&fit=crop",
+			},
+			{
+				name: "Rust",
+				hex: "#A0522D",
+				imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl: "https://placehold.co/400x400/png?text=Coral+Dress",
-		category: "Dresses",
+		defaultImageUrl: "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=600&auto=format&fit=crop",
+		category: "Tops",
 	},
 	{
 		id: "prod_5",
-		name: "Wireless Noise-Cancelling Headphones",
-		description:
-			"Over-ear headphones with active noise cancellation and 30hr battery life.",
-		price: 199.99,
-		tags: ["audio", "electronics", "travel"],
+		name: "Urban Ripstop Cargo Pants",
+		description: "Utility cargo pants designed with tough ripstop fabric, multiple secure snap pockets, and adjustable ankle cuffs for customizable styling.",
+		price: 89.99,
+		tags: ["pants", "cargo", "streetwear"],
 		dateAdded: new Date(2024, 4, 10).toISOString(),
 		status: "IN_STOCK",
-		stockQuantity: 12,
+		stockQuantity: 15,
 		colors: [
 			{
 				name: "Black",
-				hex: "#000000",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=Black+Headphones",
-			},
-			{
-				name: "Silver",
-				hex: "#C0C0C0",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=Silver+Headphones",
+				hex: "#1E1E1E",
+				imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl:
-			"https://placehold.co/400x400/png?text=Black+Headphones",
-		category: "Electronics",
+		defaultImageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=600&auto=format&fit=crop",
+		category: "Bottoms",
 	},
 	{
 		id: "prod_6",
-		name: "Smart Coffee Mug",
-		description: "Maintains your coffee temperature perfectly for 2 hours.",
-		price: 89.5,
-		tags: ["home", "gadgets", "kitchen"],
+		name: "Activewear Stretch Joggers",
+		description: "Flexible, moisture-wicking stretch joggers perfect for working out or lounging around. Complete with secure zipper pockets.",
+		price: 49.5,
+		tags: ["activewear", "joggers", "cozy"],
 		dateAdded: new Date(2024, 3, 22).toISOString(),
 		status: "IN_STOCK",
 		stockQuantity: 30,
 		colors: [
 			{
-				name: "White",
-				hex: "#FFFFFF",
-				imageUrl: "https://placehold.co/400x400/png?text=White+Mug",
-			},
-			{
-				name: "Black",
-				hex: "#000000",
-				imageUrl: "https://placehold.co/400x400/png?text=Black+Mug",
+				name: "Grey",
+				hex: "#808080",
+				imageUrl: "https://images.unsplash.com/photo-1551854838-212c50b4c184?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl: "https://placehold.co/400x400/png?text=White+Mug",
-		category: "Home & Kitchen",
+		defaultImageUrl: "https://images.unsplash.com/photo-1551854838-212c50b4c184?q=80&w=600&auto=format&fit=crop",
+		category: "Bottoms",
 	},
 	{
 		id: "prod_7",
-		name: "Mechanical Gaming Keyboard",
-		description:
-			"RGB mechanical keyboard with hot-swappable blue switches.",
-		price: 119.0,
-		tags: ["pc", "gaming", "electronics"],
+		name: "Vintage Denim Trucker Jacket",
+		description: "Time-tested classic denim jacket with copper hardware and single-needle topstitching. Designed to break in beautifully.",
+		price: 99.0,
+		tags: ["jacket", "denim", "outerwear"],
 		dateAdded: new Date(2024, 2, 5).toISOString(),
-		status: "COMING_SOON",
-		stockQuantity: 0,
+		status: "IN_STOCK",
+		stockQuantity: 12,
 		colors: [
 			{
-				name: "Black",
-				hex: "#000000",
-				imageUrl:
-					"https://placehold.co/400x400/png?text=Black+Keyboard",
+				name: "Classic Blue",
+				hex: "#4682B4",
+				imageUrl: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=600&auto=format&fit=crop",
 			},
 		],
-		defaultImageUrl:
-			"https://placehold.co/400x400/png?text=Black+Keyboard",
-		category: "Electronics",
+		defaultImageUrl: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=600&auto=format&fit=crop",
+		category: "Outerwear",
 	},
 ];
 
@@ -563,4 +556,155 @@ export const DUMMY_MESSAGES: Message[] = [
 		timestamp: new Date(Date.now() - 3600000).toISOString(),
 		read: true,
 	},
+];
+
+
+/* ==========================================================================
+ * 6. DUMMY ORDERS DATA (Seeded historical orders — drives analytics)
+ * ========================================================================== */
+
+// Helper: create a date N days ago as ISO string
+function daysAgo(n: number): string {
+	const d = new Date();
+	d.setDate(d.getDate() - n);
+	return d.toISOString();
+}
+
+export const DUMMY_ORDERS: Order[] = [
+	{
+		id: "order_001",
+		items: [
+			{ productId: "prod_1", productName: "Aura Heavyweight Crewneck", selectedColorName: "Sage Green", quantity: 1, priceAtOrder: 79.99 },
+			{ productId: "prod_2", productName: "Minimalist Supima Tee", selectedColorName: "Off-White", quantity: 2, priceAtOrder: 29.99 },
+		],
+		total: 139.97, deliveryType: "standard", deliveryDate: daysAgo(-5), timestamp: daysAgo(28), status: "DELIVERED", customerName: "Alex Johnson",
+	},
+	{
+		id: "order_002",
+		items: [{ productId: "prod_5", productName: "Urban Ripstop Cargo Pants", selectedColorName: "Black", quantity: 1, priceAtOrder: 89.99 }],
+		total: 89.99, deliveryType: "express", deliveryDate: daysAgo(-2), timestamp: daysAgo(25), status: "DELIVERED", customerName: "Sarah Chen",
+	},
+	{
+		id: "order_003",
+		items: [{ productId: "prod_3", productName: "Classic Tailored Chinos", selectedColorName: "Khaki", quantity: 2, priceAtOrder: 69.99 }],
+		total: 139.98, deliveryType: "standard", deliveryDate: daysAgo(-3), timestamp: daysAgo(22), status: "CANCELLED", customerName: "Marcus Williams",
+	},
+	{
+		id: "order_004",
+		items: [{ productId: "prod_2", productName: "Minimalist Supima Tee", selectedColorName: "Jet Black", quantity: 3, priceAtOrder: 29.99 }],
+		total: 89.97, deliveryType: "standard", deliveryDate: daysAgo(-1), timestamp: daysAgo(20), status: "DELIVERED", customerName: "Emma Davis",
+	},
+	{
+		id: "order_005",
+		items: [
+			{ productId: "prod_1", productName: "Aura Heavyweight Crewneck", selectedColorName: "Charcoal", quantity: 1, priceAtOrder: 79.99 },
+			{ productId: "prod_4", productName: "Relaxed Corduroy Overshirt", selectedColorName: "Tan", quantity: 1, priceAtOrder: 59.99 },
+		],
+		total: 139.98, deliveryType: "express", deliveryDate: daysAgo(0), timestamp: daysAgo(17), status: "DELIVERED", customerName: "James Park",
+	},
+	{
+		id: "order_006",
+		items: [{ productId: "prod_5", productName: "Urban Ripstop Cargo Pants", selectedColorName: "Black", quantity: 1, priceAtOrder: 89.99 }],
+		total: 89.99, deliveryType: "express", deliveryDate: daysAgo(1), timestamp: daysAgo(14), status: "SHIPPED", customerName: "Olivia Martinez",
+	},
+	{
+		id: "order_007",
+		items: [
+			{ productId: "prod_2", productName: "Minimalist Supima Tee", selectedColorName: "Off-White", quantity: 2, priceAtOrder: 29.99 },
+			{ productId: "prod_3", productName: "Classic Tailored Chinos", selectedColorName: "Olive", quantity: 1, priceAtOrder: 69.99 },
+		],
+		total: 129.97, deliveryType: "standard", deliveryDate: daysAgo(3), timestamp: daysAgo(11), status: "CANCELLED", customerName: "Noah Kim",
+	},
+	{
+		id: "order_008",
+		items: [{ productId: "prod_4", productName: "Relaxed Corduroy Overshirt", selectedColorName: "Rust", quantity: 1, priceAtOrder: 59.99 }],
+		total: 59.99, deliveryType: "standard", deliveryDate: daysAgo(4), timestamp: daysAgo(8), status: "PROCESSING", customerName: "Ava Thompson",
+	},
+	{
+		id: "order_009",
+		items: [
+			{ productId: "prod_1", productName: "Aura Heavyweight Crewneck", selectedColorName: "Sage Green", quantity: 1, priceAtOrder: 79.99 },
+			{ productId: "prod_2", productName: "Minimalist Supima Tee", selectedColorName: "Off-White", quantity: 1, priceAtOrder: 29.99 },
+		],
+		total: 109.98, deliveryType: "express", deliveryDate: daysAgo(2), timestamp: daysAgo(5), status: "PROCESSING", customerName: "Liam Garcia",
+	},
+	{
+		id: "order_010",
+		items: [{ productId: "prod_3", productName: "Classic Tailored Chinos", selectedColorName: "Khaki", quantity: 2, priceAtOrder: 69.99 }],
+		total: 139.98, deliveryType: "standard", deliveryDate: daysAgo(6), timestamp: daysAgo(2), status: "PENDING", customerName: "Mia Wilson",
+	},
+];
+
+const EXTRA_PRODUCTS_SEEDS = [
+	{ name: "Essential Knit Polo", category: "Tops", tags: ["knit", "polo", "classic"], price: 49.99, image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Streetwear Canvas Cap", category: "Accessories", tags: ["cap", "streetwear", "hat"], price: 24.99, image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Wool Blend Beanie", category: "Accessories", tags: ["beanie", "winter", "warm"], price: 19.99, image: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Modern Denim Jeans", category: "Bottoms", tags: ["denim", "jeans", "slim"], price: 79.99, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Waterproof Windbreaker", category: "Outerwear", tags: ["windbreaker", "jacket", "sporty"], price: 89.99, image: "https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Athletic Compression Shorts", category: "Activewear", tags: ["shorts", "gym", "fit"], price: 34.99, image: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Luxe Leather Chelsea Boots", category: "Footwear", tags: ["boots", "leather", "classic"], price: 159.99, image: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Heritage Canvas Tote Bag", category: "Accessories", tags: ["tote", "bag", "canvas"], price: 29.99, image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Relaxed Linen Pants", category: "Bottoms", tags: ["linen", "summer", "relax"], price: 54.99, image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Sherpa Lined Fleece Jacket", category: "Outerwear", tags: ["fleece", "jacket", "winter"], price: 119.99, image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Minimalist Leather Belt", category: "Accessories", tags: ["belt", "leather", "classic"], price: 39.99, image: "https://images.unsplash.com/photo-1624222247344-550fb8ecf7db?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Classic Oxford Cotton Shirt", category: "Tops", tags: ["shirt", "oxford", "formal"], price: 44.99, image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Tech Knit Performance Socks", category: "Accessories", tags: ["socks", "tech", "activewear"], price: 14.99, image: "https://images.unsplash.com/photo-1582966772680-860e372bb558?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Lightweight Run Tee", category: "Activewear", tags: ["tee", "running", "sporty"], price: 39.99, image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Modern Slim-Fit Joggers", category: "Activewear", tags: ["joggers", "comfort", "casual"], price: 59.99, image: "https://images.unsplash.com/photo-1517438476312-10d79c09b46d?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Double-Breasted Trench Coat", category: "Outerwear", tags: ["trench", "coat", "classic"], price: 179.99, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600&auto=format&fit=crop" },
+	{ name: "Retro Leather Sneakers", category: "Footwear", tags: ["sneakers", "retro", "leather"], price: 99.99, image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600&auto=format&fit=crop" },
+];
+
+const generateMoreProducts = (count: number): Product[] => {
+	const products: Product[] = [];
+	for (let i = 0; i < count; i++) {
+		const seed = EXTRA_PRODUCTS_SEEDS[i % EXTRA_PRODUCTS_SEEDS.length];
+		const variantNum = Math.floor(i / EXTRA_PRODUCTS_SEEDS.length) + 1;
+		const id = `prod_${8 + i}`;
+		const name = variantNum > 1 ? `${seed.name} (V${variantNum})` : seed.name;
+		const priceOffset = ((i * 7) % 15) - 7;
+		const price = Math.max(12.99, parseFloat((seed.price + priceOffset).toFixed(2)));
+		const stockQuantity = ((i * 13) % 45) + 5;
+		
+		products.push({
+			id,
+			name,
+			description: `High-quality ${seed.name.toLowerCase()} featuring premium detailing and styled for active daily wear. Crafted using durable cotton blends.`,
+			price,
+			tags: [...seed.tags, "casual", "aura"],
+			dateAdded: new Date(2024, 1, 1 + (i % 28)).toISOString(),
+			status: "IN_STOCK",
+			stockQuantity,
+			colors: [
+				{ name: "Default", hex: "#7F7F7F", imageUrl: seed.image }
+			],
+			defaultImageUrl: seed.image,
+			category: seed.category,
+		});
+	}
+	return products;
+};
+
+export const DUMMY_PRODUCTS: Product[] = [
+	...BASE_PRODUCTS,
+	...generateMoreProducts(43)
+];
+
+/* ==========================================================================
+ * 7. DUMMY REVIEWS DATA (Seeded product reviews — drives ratings & analytics)
+ * ========================================================================== */
+
+export const DUMMY_REVIEWS: Review[] = [
+	{ id: "rev_001", productId: "prod_1", productName: "Classic White Chino Pants", rating: 5, comment: "Perfect fit and great quality!", customerName: "Alex Johnson", timestamp: daysAgo(27) },
+	{ id: "rev_002", productId: "prod_2", productName: "Teal Cotton Shirt", rating: 4, comment: "Love the color, very comfortable.", customerName: "Emma Davis", timestamp: daysAgo(25) },
+	{ id: "rev_003", productId: "prod_5", productName: "Wireless Noise-Cancelling Headphones", rating: 5, comment: "Excellent sound quality. Best headphones owned.", customerName: "Sarah Chen", timestamp: daysAgo(24) },
+	{ id: "rev_004", productId: "prod_6", productName: "Smart Coffee Mug", rating: 4, comment: "Keeps my coffee hot for hours. Very handy!", customerName: "Marcus Williams", timestamp: daysAgo(21) },
+	{ id: "rev_005", productId: "prod_1", productName: "Classic White Chino Pants", rating: 5, comment: "Ordered twice already. Absolutely love these.", customerName: "James Park", timestamp: daysAgo(19) },
+	{ id: "rev_006", productId: "prod_2", productName: "Teal Cotton Shirt", rating: 5, comment: "Great for the summer. Pairs with everything.", customerName: "Lucas Young", timestamp: daysAgo(18) },
+	{ id: "rev_007", productId: "prod_5", productName: "Wireless Noise-Cancelling Headphones", rating: 4, comment: "Good noise cancellation. Battery life is impressive.", customerName: "Olivia Martinez", timestamp: daysAgo(15) },
+	{ id: "rev_008", productId: "prod_6", productName: "Smart Coffee Mug", rating: 5, comment: "The perfect desk companion. Worth every penny.", customerName: "Ava Thompson", timestamp: daysAgo(12) },
+	{ id: "rev_009", productId: "prod_2", productName: "Teal Cotton Shirt", rating: 4, comment: "Good quality fabric, true to size.", customerName: "Noah Kim", timestamp: daysAgo(10) },
+	{ id: "rev_010", productId: "prod_1", productName: "Classic White Chino Pants", rating: 4, comment: "Comfortable and stylish. Great for casual wear.", customerName: "Benjamin Allen", timestamp: daysAgo(8) },
+	{ id: "rev_011", productId: "prod_5", productName: "Wireless Noise-Cancelling Headphones", rating: 5, comment: "Game changer for working from home.", customerName: "Amelia Wright", timestamp: daysAgo(5) },
+	{ id: "rev_012", productId: "prod_6", productName: "Smart Coffee Mug", rating: 4, comment: "Solid product. Would recommend.", customerName: "Liam Garcia", timestamp: daysAgo(2) },
 ];

@@ -21,6 +21,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import type { Product } from "../../../config/types";
 import { useAppContext } from "../../../context/app-context";
 import {
@@ -65,6 +66,11 @@ export default function ProductOverviewModal({
 		selectedColor?.name || liveProduct.colors[0].name,
 		remaining,
 	);
+
+	const productReviews = state.reviews.filter((r) => r.productId === liveProduct.id);
+	const avgRating = productReviews.length > 0 
+		? productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length 
+		: 0;
 
 	const relatedItems = state.products
 		.filter(
@@ -200,6 +206,18 @@ export default function ProductOverviewModal({
 								</Typography>
 							)}
 						</Box>
+
+						{productReviews.length > 0 && (
+							<Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 2 }}>
+								<StarRoundedIcon sx={{ color: "#faaf00", fontSize: 20 }} />
+								<Typography sx={{ fontSize: "0.9rem", fontWeight: 700, color: "text.primary" }}>
+									{avgRating.toFixed(1)}
+								</Typography>
+								<Typography sx={{ fontSize: "0.85rem", color: "text.secondary", ml: 0.5 }}>
+									({productReviews.length} reviews)
+								</Typography>
+							</Box>
+						)}
 
 						<Typography
 							variant="body1"

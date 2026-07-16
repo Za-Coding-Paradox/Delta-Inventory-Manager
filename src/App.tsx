@@ -15,6 +15,8 @@ import ProductManager from "./components/admin-page/crud/product-manager";
 import SupplyChainViewer from "./components/admin-page/supply-chain/supply-chain-viewer";
 import AnalyticsPage from "./components/admin-page/analytics/analytics-page";
 
+import OrderManager from "./components/admin-page/crud/order-manager";
+
 const AppContent = () => {
 	const { state } = useAppContext();
 	const theme = useMemo(() => getTheme(state.theme), [state.theme]);
@@ -30,6 +32,7 @@ const AppContent = () => {
 					<Route path="/admin" element={<AdminLayout />}>
 						<Route index element={<AdminDashboard />} />
 						<Route path="products" element={<ProductManager />} />
+						<Route path="orders" element={<OrderManager />} />
 						<Route path="supply-chain" element={<SupplyChainViewer />} />
 						<Route path="analytics" element={<AnalyticsPage />} />
 					</Route>

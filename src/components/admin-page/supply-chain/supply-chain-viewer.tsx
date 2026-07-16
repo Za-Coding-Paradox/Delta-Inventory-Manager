@@ -48,12 +48,30 @@ export default function SupplyChainViewer() {
 		[]
 	);
 
-	// Sync local flow state with context when context changes (e.g. after edit/delete)
-	// In a real app we might debounce this or handle it more carefully
 	useEffect(() => {
 		setNodes(state.supplyChainNodes);
-		setEdges(state.supplyChainEdges);
-	}, [state.supplyChainNodes, state.supplyChainEdges, setNodes, setEdges]);
+		
+		const dynamicEdges = state.supplyChainEdges.map((edge) => {
+			const sourceNode = state.supplyChainNodes.find(n => n.id === edge.source);
+			const targetNode = state.supplyChainNodes.find(n => n.id === edge.target);
+			
+			const isDisrupted = 
+				(sourceNode && (sourceNode.data.status === "DELAYED" || sourceNode.data.status === "CRITICAL")) ||
+				(targetNode && (targetNode.data.status === "DELAYED" || targetNode.data.status === "CRITICAL"));
+				
+			return {
+				...edge,
+				animated: !isDisrupted,
+				style: { 
+					stroke: isDisrupted ? "#ef4444" : (isDark ? "#60a5fa" : "#3b82f6"), 
+					strokeWidth: isDisrupted ? 3 : 2,
+					strokeDasharray: isDisrupted ? "5,5" : "none"
+				}
+			};
+		});
+		
+		setEdges(dynamicEdges);
+	}, [state.supplyChainNodes, state.supplyChainEdges, setNodes, setEdges, isDark]);
 
 	const onConnect = useCallback(
 		(params: Connection | Edge) => {
@@ -201,7 +219,7 @@ export default function SupplyChainViewer() {
 					>
 						<Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>Inventory Value</Typography>
 						<Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>
-							$1.24M
+							${(state.products.reduce((acc, p) => acc + (p.price * p.stockQuantity), 0) / 1000).toFixed(1)}k
 						</Typography>
 						<Typography variant="caption" color="text.secondary">Across all warehouses</Typography>
 					</Box>
@@ -218,7 +236,7 @@ export default function SupplyChainViewer() {
 					>
 						<Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>Active Deliveries</Typography>
 						<Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>
-							42
+							{state.orders.filter(o => o.status === "SHIPPED").length}
 						</Typography>
 						<Typography variant="caption" color="text.secondary">In transit today</Typography>
 					</Box>

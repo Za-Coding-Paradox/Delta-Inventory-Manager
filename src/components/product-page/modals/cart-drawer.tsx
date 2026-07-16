@@ -23,7 +23,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useAppContext } from "../../../context/app-context";
-import type { CartItem } from "../../../config/types";
+import type { CartItem, Order } from "../../../config/types";
 import {
 	cartItemKey,
 	clampCartItemQty,
@@ -98,6 +98,46 @@ export default function CartDrawer({
 
 	const handleNext = () => setActiveStep((prev) => prev + 1);
 	const handleBack = () => setActiveStep((prev) => prev - 1);
+
+	const handlePlaceOrder = () => {
+		if (checkoutItems.length === 0) return;
+
+		// Build the Order object from checkoutItems
+		const order: Order = {
+			id: `order_${Date.now()}`,
+			items: checkoutItems.map((item) => ({
+				productId: item.product.id,
+				productName: item.product.name,
+				selectedColorName: item.selectedColorName,
+				quantity: item.quantity,
+				priceAtOrder: item.product.price,
+			})),
+			total: checkoutItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+			deliveryType: deliveryType as "standard" | "express",
+			deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
+			timestamp: new Date().toISOString(),
+			status: "PENDING",
+			customerName: "Guest Customer", // In a real app, this would be the logged-in user
+		};
+
+		// Dispatch the order to state — this triggers notification + snackbar
+		dispatch({ type: "PLACE_ORDER", payload: order });
+
+		// Remove only the checked-out items from cart
+		checkoutItems.forEach((item) => {
+			dispatch({
+				type: "REMOVE_FROM_CART",
+				payload: { productId: item.product.id, selectedColorName: item.selectedColorName },
+			});
+		});
+
+		// Reset drawer state and close
+		setCheckoutItems([]);
+		setDeliveryDate(null);
+		setDeliveryType("standard");
+		setActiveStep(0);
+		onClose();
+	};
 
 	return (
 		<LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -525,9 +565,11 @@ export default function CartDrawer({
 									color="secondary"
 									fullWidth
 									size="large"
+									disabled={checkoutItems.length === 0}
+									onClick={handlePlaceOrder}
 									sx={{ mt: 3, borderRadius: "14px", py: 1.5 }}
 								>
-									Pay Now
+									Place Order
 								</Button>
 							</Box>
 						)}

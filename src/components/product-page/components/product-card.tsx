@@ -14,6 +14,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import type { Product } from "../../../config/types";
 import { useAppContext } from "../../../context/app-context";
 
@@ -34,6 +35,11 @@ export default function ProductCard({ product, onQuickView }: Props) {
 	const isWishlisted = state.wishlist.some((p) => p.id === product.id);
 
 	const statusCfg = STATUS_CONFIG[product.status];
+
+	const productReviews = state.reviews.filter((r) => r.productId === product.id);
+	const avgRating = productReviews.length > 0 
+		? productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length 
+		: 0;
 
 	const bottomStats = [
 		{ label: "Unit price", value: `$${product.price.toFixed(2)}` },
@@ -168,15 +174,28 @@ export default function ProductCard({ product, onQuickView }: Props) {
 					</Typography>
 				</Box>
 
-				<Typography
-					sx={{
-						fontSize: "0.78rem",
-						color: "text.secondary",
-						mb: 1.5,
-					}}
-				>
-					{product.category} · {product.tags[0]}
-				</Typography>
+				<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+					<Typography
+						sx={{
+							fontSize: "0.78rem",
+							color: "text.secondary",
+						}}
+					>
+						{product.category} · {product.tags[0]}
+					</Typography>
+					
+					{productReviews.length > 0 && (
+						<Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+							<StarRoundedIcon sx={{ color: "#faaf00", fontSize: 16 }} />
+							<Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: "text.primary" }}>
+								{avgRating.toFixed(1)}
+							</Typography>
+							<Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
+								({productReviews.length})
+							</Typography>
+						</Box>
+					)}
+				</Box>
 
 				<Box
 					sx={{

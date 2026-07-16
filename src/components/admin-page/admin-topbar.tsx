@@ -11,7 +11,6 @@ import {
 	Drawer,
 	List,
 	ListItem,
-	ListItemText,
 	ListItemIcon,
 	Button,
 	Chip,
@@ -229,23 +228,19 @@ export default function AdminTopbar({ collapsed, onToggleSidebar, sectionTitle }
 											<ListItemIcon sx={{ minWidth: 40, mt: 0.5, "& svg": { fontSize: "1.5rem" } }}>
 												<NotifIcon type={notif.type} />
 											</ListItemIcon>
-											<ListItemText
-												primary={
-													<Typography sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 0.5, color: theme.palette.text.primary }}>
-														{notif.type === "ALERT" ? "System Alert" : notif.type === "SUCCESS" ? "Success" : "Information"}
+											<Box sx={{ flex: 1, ml: 1 }}>
+												<Typography sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 0.5, color: theme.palette.text.primary }}>
+													{notif.type === "ALERT" ? "System Alert" : notif.type === "SUCCESS" ? "Success" : "Information"}
+												</Typography>
+												<Box>
+													<Typography sx={{ fontSize: "0.85rem", color: theme.palette.text.secondary, mb: 0.5 }}>
+														{notif.message}
 													</Typography>
-												}
-												secondary={
-													<Box>
-														<Typography sx={{ fontSize: "0.85rem", color: theme.palette.text.secondary, mb: 0.5 }}>
-															{notif.message}
-														</Typography>
-														<Typography sx={{ fontSize: "0.7rem", color: theme.palette.text.disabled, fontWeight: 500 }}>
-															{formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
-														</Typography>
-													</Box>
-												}
-											/>
+													<Typography sx={{ fontSize: "0.7rem", color: theme.palette.text.disabled, fontWeight: 500 }}>
+														{formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
+													</Typography>
+												</Box>
+											</Box>
 											<Box className="action-buttons" sx={{ opacity: { xs: 1, sm: 0 }, transition: "opacity 0.2s", display: "flex", gap: 0.5 }}>
 												{!notif.read && (
 													<Button 
@@ -264,8 +259,7 @@ export default function AdminTopbar({ collapsed, onToggleSidebar, sectionTitle }
 													color="error"
 													onClick={(e) => {
 														e.stopPropagation();
-														dispatch({ type: "CLEAR_NOTIFICATIONS" }); // wait, I don't have DELETE_NOTIFICATION! I'll dispatch clear all for now or do we have it? Let's assume we don't have delete specific. Actually, I can just leave it or use CLEAR_NOTIFICATIONS.
-														// Actually, the prompt says "single notification clear option". Since the reducer might not have it, I'll just hide the notification via UI or skip it if reducer lacks it. I'll pass a dummy action for now.
+														dispatch({ type: "DELETE_NOTIFICATION", payload: notif.id });
 													}}
 													sx={{ minWidth: 0, p: 0.5, fontSize: "0.7rem" }}
 												>

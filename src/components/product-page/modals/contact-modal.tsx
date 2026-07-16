@@ -15,6 +15,9 @@ import SendIcon from "@mui/icons-material/Send";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import { useState } from "react";
+import { useAppContext } from "../../../context/app-context";
+import type { Message } from "../../../config/types";
 
 export default function ContactModal({
 	open,
@@ -23,6 +26,31 @@ export default function ContactModal({
 	open: boolean;
 	onClose: () => void;
 }) {
+	const { dispatch } = useAppContext();
+	const [name, setName] = useState("");
+	const [email, setEmail] = useState("");
+	const [content, setContent] = useState("");
+
+	const handleSubmit = () => {
+		if (!name || !content) return;
+		
+		const newMessage: Message = {
+			id: `msg_${Date.now()}`,
+			sender: name,
+			content: content,
+			timestamp: new Date().toISOString(),
+			read: false,
+		};
+
+		dispatch({ type: "ADD_MESSAGE", payload: newMessage });
+		
+		// Reset form and close
+		setName("");
+		setEmail("");
+		setContent("");
+		onClose();
+	};
+
 	return (
 		<Modal
 			open={open}
@@ -97,6 +125,8 @@ export default function ContactModal({
 							fullWidth
 							label="Full Name"
 							variant="outlined"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
 							slotProps={{
 								input: {
 									startAdornment: (
@@ -111,6 +141,8 @@ export default function ContactModal({
 							fullWidth
 							label="Email Address"
 							variant="outlined"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 							slotProps={{
 								input: {
 									startAdornment: (
@@ -127,6 +159,8 @@ export default function ContactModal({
 							multiline
 							rows={4}
 							variant="outlined"
+							value={content}
+							onChange={(e) => setContent(e.target.value)}
 							slotProps={{
 								input: {
 									startAdornment: (
@@ -141,7 +175,8 @@ export default function ContactModal({
 							variant="contained"
 							size="large"
 							endIcon={<SendIcon />}
-							onClick={onClose}
+							onClick={handleSubmit}
+							disabled={!name || !content}
 							sx={{
 								mt: 1,
 								py: 1.5,

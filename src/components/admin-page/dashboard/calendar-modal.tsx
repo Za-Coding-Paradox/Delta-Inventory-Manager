@@ -16,12 +16,11 @@ import {
 	alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
-import { format, isSameDay, parseISO } from "date-fns";
+import { isSameDay, parseISO } from "date-fns";
 import { useAppContext } from "../../../context/app-context";
 import type { CalendarEvent, CalendarEventType } from "../../../config/types";
 
@@ -112,6 +111,10 @@ export default function CalendarModal({ open, onClose, selectedDate }: CalendarM
 
 	const handleDeleteEvent = (id: string) => {
 		dispatch({ type: "DELETE_CALENDAR_EVENT", payload: id });
+		dispatch({
+			type: "ADD_NOTIFICATION",
+			payload: { id: `notif_${Date.now()}`, type: "ALERT", message: "Event removed", read: false, timestamp: new Date().toISOString() }
+		});
 	};
 
 	const handleClose = () => {

@@ -2,19 +2,25 @@
 import { Box, Card, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from "recharts";
-
-const data = [
-	{ subject: "Direct", A: 120, fullMark: 150 },
-	{ subject: "Social", A: 98, fullMark: 150 },
-	{ subject: "Search", A: 86, fullMark: 150 },
-	{ subject: "Email", A: 99, fullMark: 150 },
-	{ subject: "Referral", A: 85, fullMark: 150 },
-	{ subject: "Ads", A: 65, fullMark: 150 },
-];
+import { DUMMY_CUSTOMER_ANALYTICS } from "../../../config/constants";
 
 export default function TrafficSourcesChart() {
 	const theme = useTheme();
 	const isDark = theme.palette.mode === "dark";
+
+	// Use the typed DUMMY_CUSTOMER_ANALYTICS traffic sources constant
+	// These are realistic percentage-based values that represent the traffic mix.
+	// In a real app this would come from analytics API; here we use the constant.
+	const maxVisitors = Math.max(...DUMMY_CUSTOMER_ANALYTICS.trafficSources.map((s) => s.visitors));
+
+	const data = DUMMY_CUSTOMER_ANALYTICS.trafficSources.map((source) => ({
+		subject: source.sourceName.replace(" Search", "").replace(" Media", ""),
+		visitors: source.visitors,
+		percentage: source.percentage,
+		// Normalize to 0-150 scale for radar chart
+		A: Math.round((source.visitors / maxVisitors) * 150),
+		fullMark: 150,
+	}));
 
 	return (
 		<Card variant="widget" sx={{ height: 400, display: "flex", flexDirection: "column" }}>

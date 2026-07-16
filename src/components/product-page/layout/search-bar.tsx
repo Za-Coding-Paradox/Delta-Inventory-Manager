@@ -25,7 +25,7 @@ import type { Product } from "../../../config/types";
  * ========================================================================== */
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
 
-const GEMINI_MODEL = "gemini-1.5-flash-latest"; // fast & cheap for search tasks
+const GEMINI_MODEL = "gemma-4-31b-it"; // fast & cheap for search tasks
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 const AI_DEBOUNCE_MS = 600;
@@ -64,26 +64,36 @@ Rules:
 - Do NOT include unrelated products
 - Return ONLY a raw JSON array of IDs with no explanation or markdown. Example: ["prod_3", "prod_1"]`;
 
+	const requestBody = {
+		contents: [{ parts: [{ text: prompt }] }],
+		generationConfig: {
+			temperature: 0.1,
+			maxOutputTokens: 2048,
+		},
+	};
+
+	console.log(`[Gemini API Request] Model: ${GEMINI_MODEL}`, {
+		endpoint: GEMINI_ENDPOINT.split("?key=")[0] + "?key=***",
+		body: requestBody,
+	});
+
 	const response = await fetch(GEMINI_ENDPOINT, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			contents: [{ parts: [{ text: prompt }] }],
-			generationConfig: {
-				temperature: 0.1, // low temperature for deterministic results
-				maxOutputTokens: 2048,
-			},
-		}),
+		body: JSON.stringify(requestBody),
 	});
 
 	if (!response.ok) {
 		const err = await response.json().catch(() => ({}));
+		console.error(`[Gemini API Response Error] Status: ${response.status}`, err);
 		throw new Error(
 			`Gemini API error ${response.status}: ${JSON.stringify(err)}`,
 		);
 	}
 
 	const data = await response.json();
+	console.log(`[Gemini API Response Success] Status: ${response.status}`, data);
+
 	const parts: any[] = data.candidates?.[0]?.content?.parts ?? [];
 	let text = parts.filter((p: any) => !p.thought).map((p: any) => p.text).join("");
 	if (!text) text = parts.map((p: any) => p.text).join("");
@@ -91,9 +101,29 @@ Rules:
 	// Extract JSON array from the response
 	const start = text.indexOf("[");
 	const end = text.lastIndexOf("]");
-	if (start === -1 || end <= start) return [];
+	
+	let parsed: string[] = [];
+	if (start !== -1 && end > start) {
+		try {
+			parsed = JSON.parse(text.slice(start, end + 1));
+		} catch (e) {
+			console.warn(`[Gemini API Response Parse Warning] Standard JSON parse failed, attempting regex extraction:`, e);
+			const matches = text.match(/prod_\w+/g);
+			if (matches) {
+				parsed = Array.from(new Set(matches));
+			}
+		}
+	} else {
+		// Fallback to checking raw matches in text if no brackets exist
+		const matches = text.match(/prod_\w+/g);
+		if (matches) {
+			parsed = Array.from(new Set(matches));
+		} else {
+			console.warn(`[Gemini API Response Parse Warning] Could not find any product IDs in response text:`, text);
+		}
+	}
 
-	const parsed: string[] = JSON.parse(text.slice(start, end + 1));
+	console.log(`[Gemini API Parsed Output] Matches:`, parsed);
 	return parsed.filter((id) => products.some((p) => p.id === id));
 }
 

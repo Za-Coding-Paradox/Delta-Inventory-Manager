@@ -29,7 +29,6 @@ interface Props {
 export default function NodeEditorPanel({ node, onClose }: Props) {
 	const { dispatch } = useAppContext();
 	const theme = useTheme();
-	const isDark = theme.palette.mode === "dark";
 
 	const [form, setForm] = useState<SCNode | null>(null);
 

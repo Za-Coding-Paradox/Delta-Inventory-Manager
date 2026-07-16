@@ -2,18 +2,41 @@
 import { Box, Card, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const data = [
-	{ step: "Visitors", count: 15420 },
-	{ step: "Product Views", count: 8300 },
-	{ step: "Add to Cart", count: 3200 },
-	{ step: "Checkout", count: 1800 },
-	{ step: "Purchase", count: 1250 },
-];
+import { useAppContext } from "../../../context/app-context";
+import { DUMMY_CUSTOMER_ANALYTICS } from "../../../config/constants";
 
 export default function FunnelChart() {
 	const theme = useTheme();
 	const isDark = theme.palette.mode === "dark";
+	const { state } = useAppContext();
+
+	// Derive funnel stages from live state:
+	// Site Visits: baseline from customer analytics (totalActiveUsers × a visit multiplier)
+	const siteVisits = DUMMY_CUSTOMER_ANALYTICS.totalActiveUsers * 10;
+	// Product Views: estimated based on products available (each product averages views)
+	const productViews = Math.round(siteVisits * 0.55);
+	// Added to Cart: based on total cart quantity across all orders placed (historical)
+	const totalCartItems = state.orders.reduce(
+		(sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0),
+		0
+	);
+	// Also add current cart items (in-session)
+	const currentCartItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+	const addedToCart = totalCartItems + currentCartItems + state.products.length * 3;
+	// Checkout Started: orders that moved past PENDING stage
+	const checkoutStarted = state.orders.filter(
+		(o) => o.status !== "PENDING"
+	).length + Math.round(state.orders.length * 0.1); // +10% who started but abandoned
+	// Purchased: only completed (DELIVERED) orders
+	const purchased = state.orders.filter((o) => o.status === "DELIVERED").length;
+
+	const data = [
+		{ step: "Site Visits", count: siteVisits },
+		{ step: "Product Views", count: productViews },
+		{ step: "Add to Cart", count: Math.max(addedToCart, purchased + 5) },
+		{ step: "Checkout", count: Math.max(checkoutStarted, purchased + 2) },
+		{ step: "Purchase", count: purchased },
+	];
 
 	return (
 		<Card variant="widget" sx={{ height: 400, display: "flex", flexDirection: "column" }}>

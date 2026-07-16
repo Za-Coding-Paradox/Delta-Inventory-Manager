@@ -53,6 +53,41 @@ export interface CartSuggestion {
 }
 
 /* ==========================================================================
+ * 2b. USER PAGE: ORDERS & REVIEWS
+ * ========================================================================== */
+
+export type OrderStatus = "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+
+export interface OrderItem {
+	productId: string;
+	productName: string;
+	selectedColorName: string;
+	quantity: number;
+	priceAtOrder: number; // price per unit at time of order
+}
+
+export interface Order {
+	id: string;
+	items: OrderItem[];
+	total: number; // total price of the order
+	deliveryType: "standard" | "express";
+	deliveryDate: string | null; // ISO string or null
+	timestamp: string; // ISO string — when the order was placed
+	status: OrderStatus;
+	customerName: string; // Simulated customer name
+}
+
+export interface Review {
+	id: string;
+	productId: string;
+	productName: string;
+	rating: number; // 1–5
+	comment: string;
+	customerName: string;
+	timestamp: string; // ISO string
+}
+
+/* ==========================================================================
  * 3. ADMIN PAGE: DASHBOARD & ANALYTICS
  * ========================================================================== */
 
@@ -61,6 +96,7 @@ export type NotificationType = "ALERT" | "INFO" | "SUCCESS";
 export interface AdminNotification {
 	id: string;
 	type: NotificationType;
+	title?: string; // Optional title for richer display
 	message: string;
 	timestamp: string; // ISO string
 	read: boolean;
@@ -201,6 +237,10 @@ export interface AppState {
 	cartSuggestions: CartSuggestion[];
 	filters: FilterState;
 
+	// Orders & Reviews (user-generated, drives admin analytics)
+	orders: Order[];
+	reviews: Review[];
+
 	// Admin State
 	notifications: AdminNotification[];
 	messages: Message[];
@@ -247,12 +287,21 @@ export type AppAction =
 	| { type: "UPDATE_PRODUCT"; payload: Product }
 	| { type: "DELETE_PRODUCT"; payload: string } // payload is productId
 
+	// Orders & Reviews
+	| { type: "PLACE_ORDER"; payload: Order }
+	| { type: "UPDATE_ORDER"; payload: Order }
+	| { type: "DELETE_ORDER"; payload: string } // payload is orderId
+	| { type: "ADD_REVIEW"; payload: Review }
+	| { type: "UPDATE_ORDER_STATUS"; payload: { orderId: string; status: OrderStatus } }
+
 	// Admin - Notifications
 	| { type: "ADD_NOTIFICATION"; payload: AdminNotification }
 	| { type: "MARK_NOTIFICATION_READ"; payload: string } // payload is notificationId
+	| { type: "DELETE_NOTIFICATION"; payload: string } // payload is notificationId
 	| { type: "CLEAR_NOTIFICATIONS" }
 	| { type: "CLEAR_SNACKBAR" }
 	| { type: "MARK_MESSAGE_READ"; payload: string }
+	| { type: "ADD_MESSAGE"; payload: Message }
 
 	// Admin - Calendar Events
 	| { type: "ADD_CALENDAR_EVENT"; payload: CalendarEvent }

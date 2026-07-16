@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, Typography, Box, IconButton, List, ListItem, ListItemAvatar, Avatar, ListItemText, Tooltip } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, Typography, Box, IconButton, List, ListItem, ListItemAvatar, Avatar, Tooltip } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CircleIcon from "@mui/icons-material/Circle";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
@@ -49,26 +49,18 @@ export default function MessagesModal({ open, onClose }: MessagesModalProps) {
 									{msg.sender.charAt(0)}
 								</Avatar>
 							</ListItemAvatar>
-							<ListItemText
-								primaryTypographyProps={{ component: "div" }}
-								secondaryTypographyProps={{ component: "div" }}
-								primary={
-									<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-										<Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{msg.sender}</Typography>
-										{!msg.read && <CircleIcon color="primary" sx={{ fontSize: 8 }} />}
-									</Box>
-								}
-								secondary={
-									<>
-										<Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
-											{new Date(msg.timestamp).toLocaleString()}
-										</Typography>
-										<Typography variant="body2" color="text.primary">
-											{msg.content}
-										</Typography>
-									</>
-								}
-							/>
+							<Box sx={{ flex: 1, ml: 2, display: "flex", flexDirection: "column" }}>
+								<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+									<Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{msg.sender}</Typography>
+									{!msg.read && <CircleIcon color="primary" sx={{ fontSize: 8 }} />}
+								</Box>
+								<Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
+									{new Date(msg.timestamp).toLocaleString()}
+								</Typography>
+								<Typography variant="body2" color="text.primary">
+									{msg.content}
+								</Typography>
+							</Box>
 						</ListItem>
 					))}
 					{messages.length === 0 && (
