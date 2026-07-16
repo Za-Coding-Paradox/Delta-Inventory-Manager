@@ -23,8 +23,7 @@ import type { Product } from "../../../config/types";
  * CONFIGURATION — Replace the value below with your Gemini API key.
  * You can also set it via a .env file as VITE_GEMINI_API_KEY.
  * ========================================================================== */
-const GEMINI_API_KEY =
-	import.meta.env.VITE_GEMINI_API_KEY ?? "AQ.Ab8RN6LYajT8RJ7FfHuyi5KC--Abm-CiNrmnBLF3yZCoEHfv6Q";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY ?? "";
 
 const GEMINI_MODEL = "gemini-1.5-flash-latest"; // fast & cheap for search tasks
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;

@@ -5,7 +5,7 @@ import AggregatesWidget from "./kpi-cards";
 import CalendarWidget from "./calendar-widget";
 import NotificationsPanel from "./notifications-panel";
 import SupplyChainAlerts from "./supply-chain-alerts";
-import { SystemHealthWidget, OrdersWidget, MessagesWidget, ReviewsWidget, QuickActionsWidget } from "./widgets";
+import { SystemHealthWidget, OrdersWidget, MessagesWidget, ReviewsWidget, QuickActionsWidget, ActiveUsersWidget } from "./widgets";
 
 export default function AdminDashboard() {
 	return (
@@ -16,7 +16,7 @@ export default function AdminDashboard() {
 					<Stack spacing={3} sx={{ height: "100%" }}>
 						<AggregatesWidget />
 						<NotificationsPanel />
-						<Box sx={{ flexGrow: 1 }} />
+						<ActiveUsersWidget />
 						<QuickActionsWidget />
 					</Stack>
 				</Grid>

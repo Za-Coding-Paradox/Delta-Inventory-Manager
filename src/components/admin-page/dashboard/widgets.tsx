@@ -164,3 +164,20 @@ export function QuickActionsWidget() {
 		</Card>
 	);
 }
+
+export function ActiveUsersWidget() {
+	return (
+		<Card elevation={0} sx={{ p: 3, borderRadius: "20px", display: "flex", flexDirection: "column", gap: 2 }}>
+			<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+				<Typography variant="h6" sx={{ fontWeight: 800 }}>Active Users</Typography>
+				<Chip label="Live" color="success" size="small" sx={{ fontWeight: 700 }} />
+			</Box>
+			<Typography variant="h3" sx={{ fontWeight: 800, color: "primary.main" }}>
+				243
+			</Typography>
+			<Typography variant="body2" color="text.secondary">
+				Currently browsing the store
+			</Typography>
+		</Card>
+	);
+}
