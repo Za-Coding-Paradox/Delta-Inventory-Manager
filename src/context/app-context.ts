@@ -1,4 +1,4 @@
-// src/context/AppContext.ts
+// src/context/app-context.ts
 import { createContext, useContext } from "react";
 import type { AppState, AppAction } from "../config/types";
 
@@ -19,14 +19,3 @@ export const useAppContext = () => {
 	}
 	return context;
 };
-
-/*
-IMPORTANT NOTE FROM ABD
-
-Vite uses a feature called React Fast Refresh to instantly update your UI in the browser
-without reloading the page when you save a file. 
-However, Fast Refresh gets confused if a single file EXPORTS both React Components (like AppProvider) 
-and regular JavaScript functions/variables (like the useAppContext hook).
-we need to split the file into two: one for the Context/Hook, and one for the Provider Component.
-this rule is only about exports, not imports
-*/

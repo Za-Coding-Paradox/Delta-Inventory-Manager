@@ -1,6 +1,5 @@
-// src/context/AppProvider.tsx
+// src/context/app-provider.tsx
 import React, { useReducer, useEffect, useMemo } from "react";
-
 import type {
 	AppState,
 	AppAction,
@@ -8,9 +7,7 @@ import type {
 	CartSuggestion,
 	Product,
 } from "../config/types";
-
-import { AppContext } from "./app-context"; // Import context from the new file
-
+import { AppContext } from "./app-context";
 import {
 	STORAGE_KEYS,
 	DUMMY_PRODUCTS,
@@ -23,6 +20,7 @@ import {
  * 1. INITIAL STATE & LOCAL STORAGE HYDRATION
  * ========================================================================== */
 
+// Standard function declaration to avoid erasableSyntaxOnly errors with arrow generics
 function loadFromStorage<T>(key: string, fallback: T): T {
 	try {
 		const stored = localStorage.getItem(key);
@@ -38,13 +36,15 @@ const initialState: AppState = {
 	products: loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS),
 	cart: loadFromStorage<CartItem[]>(STORAGE_KEYS.CART, []),
 	wishlist: loadFromStorage<Product[]>(STORAGE_KEYS.WISHLIST, []),
-	cartSuggestions: [],
+	cartSuggestions: [], // Computed dynamically
 	filters: {
 		searchQuery: "",
 		tags: [],
 		dateRange: null,
 		priceRange: null,
 		showInStockOnly: false,
+		category: null, // Added
+		aiMatchedIds: null,
 	},
 	notifications: loadFromStorage(
 		STORAGE_KEYS.NOTIFICATIONS,
@@ -140,6 +140,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 					dateRange: null,
 					priceRange: null,
 					showInStockOnly: false,
+					category: null, // Added
 				},
 			};
 

@@ -1,4 +1,4 @@
-// src/components/user/FilterSidebar.tsx
+// src/components/product-page/filter-sidebar.tsx
 import {
 	Paper,
 	Typography,
@@ -7,10 +7,14 @@ import {
 	Switch,
 	FormControlLabel,
 	Button,
+	Divider,
+	Stack,
+	Chip,
 } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useAppContext } from "../../context/app-context";
 
-// Extract all unique tags from products for the filter buttons
 const useUniqueTags = () => {
 	const { state } = useAppContext();
 	const tags = new Set<string>();
@@ -30,113 +34,166 @@ export default function FilterSidebar() {
 		dispatch({ type: "SET_FILTERS", payload: { tags: newTags } });
 	};
 
+	const handleStartDateChange = (newDate: Date | null) => {
+		const isoDate = newDate ? newDate.toISOString() : "";
+		const newEnd = filters.dateRange ? filters.dateRange[1] : "";
+		const newRange =
+			isoDate || newEnd ? ([isoDate, newEnd] as [string, string]) : null;
+		dispatch({ type: "SET_FILTERS", payload: { dateRange: newRange } });
+	};
+
+	const handleEndDateChange = (newDate: Date | null) => {
+		const isoDate = newDate ? newDate.toISOString() : "";
+		const newStart = filters.dateRange ? filters.dateRange[0] : "";
+		const newRange =
+			newStart || isoDate
+				? ([newStart, isoDate] as [string, string])
+				: null;
+		dispatch({ type: "SET_FILTERS", payload: { dateRange: newRange } });
+	};
+
+	const startDate =
+		filters.dateRange && filters.dateRange[0]
+			? new Date(filters.dateRange[0])
+			: null;
+	const endDate =
+		filters.dateRange && filters.dateRange[1]
+			? new Date(filters.dateRange[1])
+			: null;
+
 	return (
-		<Paper
-			elevation={0}
-			sx={{ p: 3, borderRadius: "16px", position: "sticky", top: 90 }}
-		>
-			<Box
+		<LocalizationProvider dateAdapter={AdapterDateFns}>
+			<Paper
+				elevation={0}
 				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-					mb: 2,
+					p: 3,
+					borderRadius: "16px",
+					position: "sticky",
+					top: 24,
+					border: 1,
+					borderColor: "divider",
 				}}
 			>
-				<Typography variant="h6" sx={{ fontWeight: 700 }}>
-					Filters
-				</Typography>
-				<Button
-					size="small"
-					onClick={() => dispatch({ type: "RESET_FILTERS" })}
+				<Box
+					sx={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						mb: 3,
+					}}
 				>
-					Clear
-				</Button>
-			</Box>
+					<Typography variant="h6" sx={{ fontWeight: 700 }}>
+						Filters
+					</Typography>
+					<Button
+						size="small"
+						onClick={() => dispatch({ type: "RESET_FILTERS" })}
+					>
+						Clear All
+					</Button>
+				</Box>
 
-			{/* In Stock Switch */}
-			<FormControlLabel
-				control={
-					<Switch
-						checked={filters.showInStockOnly}
-						onChange={(e) =>
-							dispatch({
-								type: "SET_FILTERS",
-								payload: { showInStockOnly: e.target.checked },
-							})
-						}
-						color="primary"
+				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+					Availability
+				</Typography>
+				<FormControlLabel
+					control={
+						<Switch
+							checked={filters.showInStockOnly}
+							onChange={(e) =>
+								dispatch({
+									type: "SET_FILTERS",
+									payload: {
+										showInStockOnly: e.target.checked,
+									},
+								})
+							}
+							color="primary"
+						/>
+					}
+					label="In Stock Only"
+					sx={{ mb: 3, ml: 0 }}
+				/>
+
+				<Divider sx={{ mb: 3 }} />
+
+				<Typography variant="subtitle2" gutterBottom>
+					Price Range
+				</Typography>
+				<Slider
+					value={filters.priceRange || [0, 250]}
+					onChange={(_, newValue) =>
+						dispatch({
+							type: "SET_FILTERS",
+							payload: {
+								priceRange: newValue as [number, number],
+							},
+						})
+					}
+					valueLabelDisplay="auto"
+					min={0}
+					max={250}
+					step={10}
+					sx={{ mt: 2 }}
+				/>
+				<Typography
+					variant="body2"
+					color="text.secondary"
+					sx={{ mb: 3 }}
+				>
+					${filters.priceRange ? filters.priceRange[0] : 0} - $
+					{filters.priceRange ? filters.priceRange[1] : 250}
+				</Typography>
+
+				<Divider sx={{ mb: 3 }} />
+
+				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+					Date Added
+				</Typography>
+				<Stack spacing={2} sx={{ mb: 3 }}>
+					<DatePicker
+						label="Start Date"
+						value={startDate}
+						onChange={handleStartDateChange}
+						slotProps={{
+							textField: { size: "small", fullWidth: true },
+						}}
 					/>
-				}
-				label="In Stock Only"
-				sx={{ mb: 3 }}
-			/>
+					<DatePicker
+						label="End Date"
+						value={endDate}
+						onChange={handleEndDateChange}
+						slotProps={{
+							textField: { size: "small", fullWidth: true },
+						}}
+					/>
+				</Stack>
 
-			{/* Price Slider */}
-			<Typography variant="subtitle2" gutterBottom>
-				Price Range
-			</Typography>
-			<Slider
-				value={filters.priceRange || [0, 250]}
-				onChange={(_, newValue) =>
-					dispatch({
-						type: "SET_FILTERS",
-						payload: { priceRange: newValue as [number, number] },
-					})
-				}
-				valueLabelDisplay="auto"
-				min={0}
-				max={250}
-				step={10}
-				sx={{ color: "primary.main" }}
-			/>
-			<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-				${filters.priceRange ? filters.priceRange[0] : 0} - $
-				{filters.priceRange ? filters.priceRange[1] : 250}
-			</Typography>
+				<Divider sx={{ mb: 3 }} />
 
-			{/* Tags */}
-			<Typography variant="subtitle2" gutterBottom>
-				Tags
-			</Typography>
-			<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-				{allTags.map((tag) => {
-					const selected = filters.tags.includes(tag);
-					return (
-						<Box
-							key={tag}
-							onClick={() => handleTagToggle(tag)}
-							sx={{
-								px: 1.5,
-								py: 0.5,
-								borderRadius: "6px",
-								fontSize: "0.75rem",
-								fontWeight: 600,
-								cursor: "pointer",
-								textTransform: "capitalize",
-								backgroundColor: (t) =>
-									selected
-										? t.palette.primary.main
-										: t.palette.mode === "light"
-											? "#F0F0F0"
-											: "#333",
-								color: (t) =>
-									selected
-										? "#fff"
-										: t.palette.text.secondary,
-								"&:hover": {
-									backgroundColor: (t) =>
-										selected
-											? t.palette.primary.dark
-											: t.palette.action.hover,
-								},
-							}}
-						>
-							{tag}
-						</Box>
-					);
-				})}
-			</Box>
-		</Paper>
+				{/* Tags converted to clickable Chip buttons */}
+				<Typography variant="subtitle2" gutterBottom sx={{ mb: 1.5 }}>
+					Tags
+				</Typography>
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+					{allTags.map((tag) => {
+						const selected = filters.tags.includes(tag);
+						return (
+							<Chip
+								key={tag}
+								label={tag}
+								clickable
+								color={selected ? "primary" : "default"}
+								onClick={() => handleTagToggle(tag)}
+								sx={{
+									textTransform: "capitalize",
+									fontWeight: 600,
+								}}
+							/>
+						);
+					})}
+				</Box>
+			</Paper>
+		</LocalizationProvider>
 	);
 }

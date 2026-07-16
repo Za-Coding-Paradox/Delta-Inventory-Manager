@@ -125,6 +125,77 @@ export const DUMMY_PRODUCTS: Product[] = [
 		defaultImageUrl: "https://via.placeholder.com/400x400?text=Coral+Dress",
 		category: "Dresses",
 	},
+	{
+		id: "prod_5",
+		name: "Wireless Noise-Cancelling Headphones",
+		description:
+			"Over-ear headphones with active noise cancellation and 30hr battery life.",
+		price: 199.99,
+		tags: ["audio", "electronics", "travel"],
+		dateAdded: new Date(2024, 4, 10).toISOString(),
+		status: "IN_STOCK",
+		colors: [
+			{
+				name: "Black",
+				hex: "#000000",
+				imageUrl:
+					"https://via.placeholder.com/400x400?text=Black+Headphones",
+			},
+			{
+				name: "Silver",
+				hex: "#C0C0C0",
+				imageUrl:
+					"https://via.placeholder.com/400x400?text=Silver+Headphones",
+			},
+		],
+		defaultImageUrl:
+			"https://via.placeholder.com/400x400?text=Black+Headphones",
+		category: "Electronics",
+	},
+	{
+		id: "prod_6",
+		name: "Smart Coffee Mug",
+		description: "Maintains your coffee temperature perfectly for 2 hours.",
+		price: 89.5,
+		tags: ["home", "gadgets", "kitchen"],
+		dateAdded: new Date(2024, 3, 22).toISOString(),
+		status: "IN_STOCK",
+		colors: [
+			{
+				name: "White",
+				hex: "#FFFFFF",
+				imageUrl: "https://via.placeholder.com/400x400?text=White+Mug",
+			},
+			{
+				name: "Black",
+				hex: "#000000",
+				imageUrl: "https://via.placeholder.com/400x400?text=Black+Mug",
+			},
+		],
+		defaultImageUrl: "https://via.placeholder.com/400x400?text=White+Mug",
+		category: "Home & Kitchen",
+	},
+	{
+		id: "prod_7",
+		name: "Mechanical Gaming Keyboard",
+		description:
+			"RGB mechanical keyboard with hot-swappable blue switches.",
+		price: 119.0,
+		tags: ["pc", "gaming", "electronics"],
+		dateAdded: new Date(2024, 2, 5).toISOString(),
+		status: "COMING_SOON",
+		colors: [
+			{
+				name: "Black",
+				hex: "#000000",
+				imageUrl:
+					"https://via.placeholder.com/400x400?text=Black+Keyboard",
+			},
+		],
+		defaultImageUrl:
+			"https://via.placeholder.com/400x400?text=Black+Keyboard",
+		category: "Electronics",
+	},
 ];
 
 /* ==========================================================================

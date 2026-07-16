@@ -25,12 +25,15 @@ export interface Product {
 	category: string;
 }
 
+// src/config/types.ts (Update FilterState interface)
 export interface FilterState {
-	searchQuery: string; // Used for both Grep and LLM search
+	searchQuery: string;
 	tags: string[];
-	dateRange: [string, string] | null; // ISO strings [startDate, endDate]
+	dateRange: [string, string] | null;
 	priceRange: [number, number] | null;
 	showInStockOnly: boolean;
+	category: string | null;
+	aiMatchedIds?: string[] | null; // Added this line
 }
 
 /* ==========================================================================

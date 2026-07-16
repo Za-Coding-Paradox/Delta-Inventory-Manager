@@ -1,5 +1,4 @@
-// src/components/layout/UserNavbar.tsx
-import { useEffect, useState } from "react";
+// src/components/product-page/user-navbar.tsx
 import {
 	AppBar,
 	Toolbar,
@@ -7,107 +6,121 @@ import {
 	IconButton,
 	Box,
 	Badge,
-	Button,
+	Link,
+	Divider,
+	Tooltip,
 } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import EmailIcon from "@mui/icons-material/Email"; // Fixed import
 import { useAppContext } from "../../context/app-context";
+import SearchBar from "./search-bar";
 
-export default function UserNavbar() {
+interface Props {
+	onOpenCart: () => void;
+	onOpenWishlist: () => void;
+	onOpenContact: () => void;
+}
+
+export default function UserNavbar({
+	onOpenCart,
+	onOpenWishlist,
+	onOpenContact,
+}: Props) {
 	const { state, dispatch } = useAppContext();
-	const [navVisible, setNavVisible] = useState(true);
-	const [prevScrollPos, setPrevScrollPos] = useState(0);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			const currentScrollPos = window.scrollY;
-
-			if (currentScrollPos < 10) {
-				setNavVisible(true);
-			} else if (prevScrollPos > currentScrollPos) {
-				setNavVisible(true); // Scrolling Up
-			} else {
-				setNavVisible(false); // Scrolling Down
-			}
-			setPrevScrollPos(currentScrollPos);
-		};
-
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, [prevScrollPos]);
-
-	const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-
 	const cartCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
 
 	return (
-		<AppBar
-			position="fixed"
-			sx={{
-				transform: navVisible ? "translateY(0)" : "translateY(-100%)",
-				transition: "transform 0.3s ease-in-out",
-			}}
-		>
+		<AppBar position="static" elevation={0}>
 			<Toolbar>
 				<Typography
 					variant="h6"
-					component="div"
-					sx={{
-						flexGrow: 1,
-						cursor: "pointer",
-						fontWeight: 800,
-						letterSpacing: "-0.5px",
-					}}
-					onClick={scrollToTop}
+					sx={{ cursor: "pointer", fontWeight: 800, mr: 4 }}
+					onClick={() =>
+						window.scrollTo({ top: 0, behavior: "smooth" })
+					}
 				>
-					AURA
+					<Link href="/" underline="none" color="inherit">
+						AURA
+					</Link>
 				</Typography>
 
+				<SearchBar />
+
+				<Box sx={{ flexGrow: 1 }} />
+
 				<Box
-					sx={{ display: { xs: "none", md: "flex" }, gap: 2, mr: 4 }}
+					sx={{
+						display: { xs: "none", md: "flex" },
+						gap: 2,
+						mr: 2,
+						alignItems: "center",
+					}}
 				>
-					<Button color="inherit" href="#products">
+					<Link href="#products" underline="hover" color="inherit">
 						Products
-					</Button>
-					<Button color="inherit" href="#trending">
+					</Link>
+					<Divider orientation="vertical" flexItem />
+					<Link href="#trending" underline="hover" color="inherit">
 						Trending
-					</Button>
-					<Button color="inherit" href="#faq">
+					</Link>
+					<Divider orientation="vertical" flexItem />
+					<Link href="#faq" underline="hover" color="inherit">
 						FAQ
-					</Button>
-					<Button color="inherit" href="#contact">
-						Contact
-					</Button>
+					</Link>
 				</Box>
 
-				<IconButton
-					onClick={() => dispatch({ type: "TOGGLE_THEME" })}
-					color="inherit"
-				>
-					{state.theme === "light" ? (
-						<DarkModeIcon />
-					) : (
-						<LightModeIcon />
-					)}
-				</IconButton>
-
-				<IconButton color="inherit">
-					<Badge
-						badgeContent={state.wishlist.length}
-						color="secondary"
+				<Tooltip title="Toggle Theme">
+					<IconButton
+						onClick={() => dispatch({ type: "TOGGLE_THEME" })}
+						color="inherit"
 					>
-						<FavoriteBorderIcon />
-					</Badge>
-				</IconButton>
+						{state.theme === "light" ? (
+							<DarkModeIcon />
+						) : (
+							<LightModeIcon />
+						)}
+					</IconButton>
+				</Tooltip>
 
-				<IconButton color="inherit">
-					<Badge badgeContent={cartCount} color="secondary">
-						<ShoppingCartOutlinedIcon />
-					</Badge>
-				</IconButton>
+				<Tooltip title="Contact Us">
+					<IconButton color="inherit" onClick={onOpenContact}>
+						<EmailIcon />
+					</IconButton>
+				</Tooltip>
+
+				<Tooltip title="Wishlist">
+					<IconButton color="inherit" onClick={onOpenWishlist}>
+						<Badge
+							badgeContent={state.wishlist.length}
+							color="secondary"
+						>
+							<FavoriteBorderIcon />
+						</Badge>
+					</IconButton>
+				</Tooltip>
+
+				<Tooltip title="Cart">
+					<IconButton color="inherit" onClick={onOpenCart}>
+						{/* Pure CSS animation on key change */}
+						<Badge
+							key={cartCount}
+							badgeContent={cartCount}
+							color="secondary"
+							sx={{
+								"& .MuiBadge-badge": {
+									animation: "pop 0.3s ease-in-out",
+								},
+							}}
+						>
+							<ShoppingCartOutlinedIcon />
+						</Badge>
+					</IconButton>
+				</Tooltip>
 			</Toolbar>
+			<style>{`@keyframes pop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }`}</style>
 		</AppBar>
 	);
 }

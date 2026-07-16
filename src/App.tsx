@@ -6,9 +6,8 @@ import { AppProvider } from "./context/app-provider";
 import { useAppContext } from "./context/app-context";
 import { getTheme } from "./config/theme";
 
-// Layout & Pages
 import UserLayout from "./components/product-page/user-layout";
-import ProductGrid from "./components/product-page/product-grid";
+import UserHome from "./components/product-page/user-home";
 
 const AppContent = () => {
 	const { state } = useAppContext();
@@ -20,8 +19,7 @@ const AppContent = () => {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<UserLayout />}>
-						<Route index element={<ProductGrid />} />
-						{/* Future routes like /product/:id will go here */}
+						<Route index element={<UserHome />} />
 					</Route>
 				</Routes>
 			</BrowserRouter>
