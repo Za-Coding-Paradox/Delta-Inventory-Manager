@@ -24,7 +24,7 @@ export default function ContactSection() {
 					p: { xs: 3, md: 6 },
 					borderRadius: "24px",
 					backgroundColor: (t) =>
-						t.palette.mode === "light" ? "#F0F4F8" : "#1A1A1A",
+						t.palette.mode === "light" ? "#F5F5F5" : "#0F0F0F",
 				}}
 			>
 				<Typography

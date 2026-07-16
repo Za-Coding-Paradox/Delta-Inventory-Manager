@@ -3,15 +3,15 @@ import { createTheme, alpha } from "@mui/material/styles";
 import type { ThemeOptions } from "@mui/material/styles";
 
 /* ==========================================================================
- * 1. CUSTOM CHART COLORS (For Recharts)
+ * 1. CUSTOM CHART COLORS (For Recharts) — Monochrome Greyscale Spectrum
  * ========================================================================== */
 export const CHART_COLORS = [
-	"#3A6B88", // Primary Blue/Teal
-	"#D88C5A", // Secondary Terracotta
-	"#82B1D4", // Light Blue
-	"#FFAB91", // Soft Coral
-	"#9CCC65", // Soft Green
-	"#BA68C8", // Soft Purple
+	"#111111", // Near-black
+	"#555555", // Dark grey
+	"#888888", // Mid grey
+	"#AAAAAA", // Light grey
+	"#CCCCCC", // Pale grey
+	"#E0E0E0", // Off-white grey
 ];
 
 /* ==========================================================================
@@ -38,39 +38,43 @@ export const getTheme = (mode: "light" | "dark") => {
 		mode === "light"
 			? {
 					primary: {
-						main: "#3A6B88",
-						light: "#5A8BA8",
-						dark: "#2A4B68",
+						main: "#111111",
+						light: "#333333",
+						dark: "#000000",
+						contrastText: "#FFFFFF",
 					},
 					secondary: {
-						main: "#D88C5A",
-						light: "#E8AC7A",
-						dark: "#B86C3A",
+						main: "#555555",
+						light: "#777777",
+						dark: "#333333",
+						contrastText: "#FFFFFF",
 					},
-					success: { main: "#4CAF50" },
-					warning: { main: "#FF9800" },
-					error: { main: "#F44336" },
-					background: { default: "#F4F6F8", paper: "#FFFFFF" },
-					text: { primary: "#1A1A2E", secondary: "#5C6370" },
-					divider: alpha("#1A1A2E", 0.08),
+					success: { main: "#2E7D32", contrastText: "#FFFFFF" },
+					warning: { main: "#8B6914", contrastText: "#FFFFFF" },
+					error: { main: "#B71C1C", contrastText: "#FFFFFF" },
+					background: { default: "#F5F5F5", paper: "#FFFFFF" },
+					text: { primary: "#0A0A0A", secondary: "#5C5C5C" },
+					divider: alpha("#0A0A0A", 0.1),
 				}
 			: {
 					primary: {
-						main: "#82B1D4",
-						light: "#A2C1E4",
-						dark: "#6291B4",
+						main: "#F0F0F0",
+						light: "#FFFFFF",
+						dark: "#CCCCCC",
+						contrastText: "#000000",
 					},
 					secondary: {
-						main: "#FFAB91",
-						light: "#FFCBA1",
-						dark: "#DF8B71",
+						main: "#A0A0A0",
+						light: "#C0C0C0",
+						dark: "#787878",
+						contrastText: "#000000",
 					},
-					success: { main: "#81C784" },
-					warning: { main: "#FFB74D" },
-					error: { main: "#E57373" },
-					background: { default: "#0F0F0F", paper: "#1A1A1A" },
-					text: { primary: "#F5F5F5", secondary: "#B0B0B0" },
-					divider: alpha("#F5F5F5", 0.12),
+					success: { main: "#66BB6A", contrastText: "#000000" },
+					warning: { main: "#FFA726", contrastText: "#000000" },
+					error: { main: "#EF5350", contrastText: "#FFFFFF" },
+					background: { default: "#000000", paper: "#0F0F0F" },
+					text: { primary: "#F5F5F5", secondary: "#A0A0A0" },
+					divider: alpha("#F5F5F5", 0.1),
 				};
 
 	const baseTheme = createTheme({
@@ -116,14 +120,19 @@ export const getTheme = (mode: "light" | "dark") => {
 						},
 					},
 					containedPrimary: {
+						backgroundColor: baseTheme.palette.primary.main,
+						color: baseTheme.palette.primary.contrastText,
 						"&:hover": {
-							backgroundColor: baseTheme.palette.primary.dark,
-							boxShadow: `0px 4px 12px ${alpha(baseTheme.palette.primary.main, 0.4)}`,
+							backgroundColor: baseTheme.palette.primary.light,
+							boxShadow:
+								mode === "light"
+									? "0px 4px 16px rgba(0, 0, 0, 0.3)"
+									: "0px 4px 16px rgba(255, 255, 255, 0.15)",
 						},
 					},
 					containedSecondary: {
 						"&:hover": {
-							backgroundColor: baseTheme.palette.secondary.dark,
+							backgroundColor: baseTheme.palette.secondary.light,
 							boxShadow: `0px 4px 12px ${alpha(baseTheme.palette.secondary.main, 0.4)}`,
 						},
 					},
@@ -153,8 +162,8 @@ export const getTheme = (mode: "light" | "dark") => {
 						borderBottom: "none",
 						boxShadow:
 							mode === "light"
-								? "0 4px 24px rgba(58, 107, 136, 0.08)"
-								: "0 4px 24px rgba(0, 0, 0, 0.4)",
+								? "0 1px 0 rgba(0, 0, 0, 0.08)"
+								: "0 1px 0 rgba(255, 255, 255, 0.06)",
 						borderRadius: "0 0 28px 28px",
 						overflow: "visible",
 						transition: "transform 0.3s ease-in-out",
@@ -186,7 +195,7 @@ export const getTheme = (mode: "light" | "dark") => {
 					root: {
 						borderRadius: "14px",
 						backgroundColor:
-							mode === "light" ? "#FFFFFF" : "#222222",
+							mode === "light" ? "#FFFFFF" : "#1A1A1A",
 						transition: "all 0.2s ease",
 						"&:hover .MuiOutlinedInput-notchedOutline": {
 							borderColor: baseTheme.palette.primary.light,
@@ -194,7 +203,10 @@ export const getTheme = (mode: "light" | "dark") => {
 						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
 							borderWidth: "2px",
 							borderColor: baseTheme.palette.primary.main,
-							boxShadow: `0 0 0 4px ${alpha(baseTheme.palette.primary.main, 0.12)}`,
+							boxShadow:
+								mode === "light"
+									? `0 0 0 4px rgba(17, 17, 17, 0.08)`
+									: `0 0 0 4px rgba(240, 240, 240, 0.08)`,
 						},
 					},
 					notchedOutline: {
@@ -211,8 +223,8 @@ export const getTheme = (mode: "light" | "dark") => {
 						border: `1px solid ${baseTheme.palette.divider}`,
 						boxShadow:
 							mode === "light"
-								? "0 8px 32px rgba(58, 107, 136, 0.12)"
-								: "0 8px 32px rgba(0, 0, 0, 0.45)",
+								? "0 8px 32px rgba(0, 0, 0, 0.12)"
+								: "0 8px 32px rgba(0, 0, 0, 0.6)",
 					},
 					option: {
 						borderRadius: "8px",
@@ -234,8 +246,8 @@ export const getTheme = (mode: "light" | "dark") => {
 						border: `1px solid ${baseTheme.palette.divider}`,
 						boxShadow:
 							mode === "light"
-								? "0 8px 32px rgba(58, 107, 136, 0.12)"
-								: "0 8px 32px rgba(0, 0, 0, 0.45)",
+								? "0 8px 32px rgba(0, 0, 0, 0.12)"
+								: "0 8px 32px rgba(0, 0, 0, 0.6)",
 					},
 					list: {
 						padding: "6px",
@@ -252,7 +264,7 @@ export const getTheme = (mode: "light" | "dark") => {
 						"&.Mui-selected": {
 							backgroundColor: alpha(
 								baseTheme.palette.primary.main,
-								0.1,
+								mode === "light" ? 0.08 : 0.12,
 							),
 						},
 					},
@@ -274,8 +286,8 @@ export const getTheme = (mode: "light" | "dark") => {
 						border: `1px solid ${baseTheme.palette.divider}`,
 						boxShadow:
 							mode === "light"
-								? "0 12px 40px rgba(58, 107, 136, 0.14)"
-								: "0 12px 40px rgba(0, 0, 0, 0.5)",
+								? "0 12px 40px rgba(0, 0, 0, 0.15)"
+								: "0 12px 40px rgba(0, 0, 0, 0.7)",
 					},
 				},
 			},
@@ -288,19 +300,25 @@ export const getTheme = (mode: "light" | "dark") => {
 					thumb: {
 						width: 18,
 						height: 18,
+						backgroundColor: baseTheme.palette.primary.main,
 						"&:hover, &.Mui-focusVisible": {
-							boxShadow: `0 0 0 8px ${alpha(baseTheme.palette.primary.main, 0.16)}`,
+							boxShadow:
+								mode === "light"
+									? `0 0 0 8px rgba(17, 17, 17, 0.12)`
+									: `0 0 0 8px rgba(240, 240, 240, 0.12)`,
 						},
 					},
 					track: {
 						border: "none",
 						height: 6,
 						borderRadius: 3,
+						backgroundColor: baseTheme.palette.primary.main,
 					},
 					rail: {
 						height: 6,
 						borderRadius: 3,
-						opacity: 0.3,
+						opacity: 0.2,
+						backgroundColor: baseTheme.palette.text.primary,
 					},
 				},
 			},
@@ -315,7 +333,7 @@ export const getTheme = (mode: "light" | "dark") => {
 						"&.Mui-selected": {
 							backgroundColor: alpha(
 								baseTheme.palette.primary.main,
-								0.12,
+								mode === "light" ? 0.1 : 0.15,
 							),
 							color: baseTheme.palette.primary.main,
 							"&:hover": {
@@ -373,7 +391,10 @@ export const getTheme = (mode: "light" | "dark") => {
 				styleOverrides: {
 					paper: {
 						borderRadius: "20px",
-						boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+						boxShadow:
+							mode === "light"
+								? "0 10px 40px rgba(0,0,0,0.2)"
+								: "0 10px 40px rgba(0,0,0,0.8)",
 						// Make sure cart modal can scroll internally if it gets long
 						maxHeight: "90vh",
 						display: "flex",
@@ -384,7 +405,7 @@ export const getTheme = (mode: "light" | "dark") => {
 			MuiBackdrop: {
 				styleOverrides: {
 					root: {
-						backgroundColor: alpha("#000000", 0.6),
+						backgroundColor: alpha("#000000", 0.65),
 						backdropFilter: "blur(4px)", // Frosted glass effect
 					},
 				},
@@ -419,20 +440,20 @@ export const getTheme = (mode: "light" | "dark") => {
 							borderRadius: "16px",
 							padding: "24px",
 							backgroundColor:
-								mode === "light" ? "#FFFFFF" : "#1E1E1E",
+								mode === "light" ? "#FFFFFF" : "#0F0F0F",
 							border: `1px solid ${baseTheme.palette.divider}`,
 							boxShadow:
 								mode === "light"
-									? "0px 2px 10px rgba(0, 0, 0, 0.04)"
-									: "0px 2px 10px rgba(0, 0, 0, 0.25)",
+									? "0px 2px 10px rgba(0, 0, 0, 0.06)"
+									: "0px 2px 10px rgba(0, 0, 0, 0.4)",
 							transition:
 								"transform 0.3s ease, box-shadow 0.3s ease",
 							"&:hover": {
 								transform: "translateY(-2px)",
 								boxShadow:
 									mode === "light"
-										? "0px 6px 16px rgba(0, 0, 0, 0.06)"
-										: "0px 6px 16px rgba(0, 0, 0, 0.35)",
+										? "0px 6px 20px rgba(0, 0, 0, 0.1)"
+										: "0px 6px 20px rgba(0, 0, 0, 0.5)",
 							},
 						},
 					},
@@ -443,14 +464,14 @@ export const getTheme = (mode: "light" | "dark") => {
 						border: `1px solid ${baseTheme.palette.divider}`,
 						boxShadow:
 							mode === "light"
-								? "0px 4px 12px rgba(0, 0, 0, 0.03)"
-								: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+								? "0px 2px 8px rgba(0, 0, 0, 0.04)"
+								: "0px 2px 8px rgba(0, 0, 0, 0.3)",
 						transition: "box-shadow 0.3s ease, transform 0.3s ease",
 						"&:hover": {
 							boxShadow:
 								mode === "light"
-									? "0px 8px 24px rgba(0, 0, 0, 0.08)"
-									: "0px 8px 24px rgba(0, 0, 0, 0.4)",
+									? "0px 8px 24px rgba(0, 0, 0, 0.1)"
+									: "0px 8px 24px rgba(0, 0, 0, 0.5)",
 						},
 					},
 				},
@@ -467,7 +488,12 @@ export const getTheme = (mode: "light" | "dark") => {
 					},
 					filled: {
 						"&.MuiChip-colorPrimary": {
-							boxShadow: `0 2px 8px ${alpha(baseTheme.palette.primary.main, 0.25)}`,
+							backgroundColor: baseTheme.palette.primary.main,
+							color: baseTheme.palette.primary.contrastText,
+							boxShadow:
+								mode === "light"
+									? "0 2px 8px rgba(17, 17, 17, 0.25)"
+									: "0 2px 8px rgba(240, 240, 240, 0.15)",
 						},
 					},
 					outlined: {
@@ -475,12 +501,12 @@ export const getTheme = (mode: "light" | "dark") => {
 							baseTheme.palette.primary.main,
 							0.04,
 						),
-						borderColor: alpha(baseTheme.palette.primary.main, 0.25),
+						borderColor: alpha(baseTheme.palette.primary.main, 0.2),
 						color: baseTheme.palette.primary.main,
 						"&:hover": {
 							backgroundColor: alpha(
 								baseTheme.palette.primary.main,
-								0.1,
+								0.08,
 							),
 						},
 					},
@@ -492,10 +518,10 @@ export const getTheme = (mode: "light" | "dark") => {
 						style: {
 							backgroundColor: alpha(
 								baseTheme.palette.success.main,
-								0.15,
+								0.12,
 							),
 							color: baseTheme.palette.success.main,
-							border: `1px solid ${alpha(baseTheme.palette.success.main, 0.3)}`,
+							border: `1px solid ${alpha(baseTheme.palette.success.main, 0.25)}`,
 						},
 					},
 					{
@@ -503,10 +529,10 @@ export const getTheme = (mode: "light" | "dark") => {
 						style: {
 							backgroundColor: alpha(
 								baseTheme.palette.error.main,
-								0.15,
+								0.12,
 							),
 							color: baseTheme.palette.error.main,
-							border: `1px solid ${alpha(baseTheme.palette.error.main, 0.3)}`,
+							border: `1px solid ${alpha(baseTheme.palette.error.main, 0.25)}`,
 						},
 					},
 					{
@@ -514,10 +540,10 @@ export const getTheme = (mode: "light" | "dark") => {
 						style: {
 							backgroundColor: alpha(
 								baseTheme.palette.warning.main,
-								0.15,
+								0.12,
 							),
 							color: baseTheme.palette.warning.main,
-							border: `1px solid ${alpha(baseTheme.palette.warning.main, 0.3)}`,
+							border: `1px solid ${alpha(baseTheme.palette.warning.main, 0.25)}`,
 						},
 					},
 				],
@@ -533,6 +559,8 @@ export const getTheme = (mode: "light" | "dark") => {
 						minWidth: "18px",
 						padding: "0 4px",
 						borderRadius: "9px",
+						backgroundColor: baseTheme.palette.primary.main,
+						color: baseTheme.palette.primary.contrastText,
 					},
 				},
 			},
@@ -546,7 +574,10 @@ export const getTheme = (mode: "light" | "dark") => {
 						fontSize: "0.75rem",
 						borderRadius: "6px",
 						padding: "6px 10px",
-						boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+						boxShadow:
+							mode === "light"
+								? "0 2px 8px rgba(0,0,0,0.2)"
+								: "0 2px 8px rgba(0,0,0,0.5)",
 					},
 					arrow: {
 						color: baseTheme.palette.text.primary,
@@ -555,7 +586,7 @@ export const getTheme = (mode: "light" | "dark") => {
 			},
 
 			/* --- CALENDAR WIDGET --- */
-			MuiPickersDay: {
+			MuiPickerDay: {
 				styleOverrides: {
 					root: {
 						borderRadius: "8px",
@@ -589,14 +620,14 @@ export const getTheme = (mode: "light" | "dark") => {
 					},
 					columnHeader: {
 						backgroundColor:
-							mode === "light" ? "#F5F5F5" : "#252525",
+							mode === "light" ? "#F0F0F0" : "#1A1A1A",
 						fontWeight: 700,
 					},
 					row: {
 						"&:hover": {
 							backgroundColor: alpha(
 								baseTheme.palette.primary.main,
-								0.05,
+								mode === "light" ? 0.04 : 0.06,
 							),
 						},
 					},
@@ -614,8 +645,19 @@ export const getTheme = (mode: "light" | "dark") => {
 						},
 						"&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb":
 							{
-								backgroundColor: baseTheme.palette.divider,
+								backgroundColor:
+									mode === "light" ? "#CCCCCC" : "#333333",
 								borderRadius: "8px",
+								"&:hover": {
+									backgroundColor:
+										mode === "light"
+											? "#AAAAAA"
+											: "#555555",
+								},
+							},
+						"&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track":
+							{
+								backgroundColor: "transparent",
 							},
 					},
 				},
@@ -642,6 +684,12 @@ declare module "@mui/material/styles" {
 }
 
 // Extend Card and Chip props to recognize custom variants in TypeScript
+declare module "@mui/material/Paper" {
+	interface PaperPropsVariantOverrides {
+		widget: true;
+	}
+}
+
 declare module "@mui/material/Card" {
 	interface CardPropsVariantOverrides {
 		widget: true;

@@ -77,8 +77,8 @@ export default function FilterSidebar() {
 					borderColor: "divider",
 					background: (t) =>
 						t.palette.mode === "light"
-							? "linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)"
-							: "background.paper",
+							? "linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%)"
+							: "linear-gradient(180deg, #0F0F0F 0%, #0A0A0A 100%)",
 				}}
 			>
 				<Box

@@ -142,17 +142,37 @@ export type SupplyChainNodeStatus = "NORMAL" | "DELAYED" | "CRITICAL";
 
 // This is the custom data payload attached to React Flow Nodes
 export interface SupplyChainNodeData {
+	[key: string]: unknown;
 	label: string;
 	type: SupplyChainNodeType;
 	status: SupplyChainNodeStatus;
 	details?: string;
-	stockLevel?: number; // this means, that this property is optional
+	stockLevel?: number;
+	capacity?: number;
 }
 
 // This is the custom data payload attached to React Flow Edges
 export interface SupplyChainEdgeData {
+	[key: string]: unknown;
 	transitTime: string; // e.g., "3 days"
 	isAnimated: boolean; // For React Flow's animated line property
+}
+
+// React Flow node & edge shapes used in AppState
+export interface SCNode {
+	id: string;
+	type: string;
+	position: { x: number; y: number };
+	data: SupplyChainNodeData;
+}
+
+export interface SCEdge {
+	id: string;
+	source: string;
+	target: string;
+	animated?: boolean;
+	data?: SupplyChainEdgeData;
+	label?: string;
 }
 
 /* ==========================================================================
@@ -175,6 +195,8 @@ export interface AppState {
 	// Admin State
 	notifications: AdminNotification[];
 	calendarEvents: CalendarEvent[];
+	supplyChainNodes: SCNode[];
+	supplyChainEdges: SCEdge[];
 }
 
 // Discriminated Union for all Reducer Actions
@@ -217,4 +239,18 @@ export type AppAction =
 	// Admin - Notifications
 	| { type: "ADD_NOTIFICATION"; payload: AdminNotification }
 	| { type: "MARK_NOTIFICATION_READ"; payload: string } // payload is notificationId
-	| { type: "CLEAR_NOTIFICATIONS" };
+	| { type: "CLEAR_NOTIFICATIONS" }
+
+	// Admin - Calendar Events
+	| { type: "ADD_CALENDAR_EVENT"; payload: CalendarEvent }
+	| { type: "UPDATE_CALENDAR_EVENT"; payload: CalendarEvent }
+	| { type: "DELETE_CALENDAR_EVENT"; payload: string } // payload is eventId
+
+	// Admin - Supply Chain
+	| { type: "SET_SUPPLY_CHAIN_NODES"; payload: SCNode[] }
+	| { type: "SET_SUPPLY_CHAIN_EDGES"; payload: SCEdge[] }
+	| { type: "UPDATE_SUPPLY_CHAIN_NODE"; payload: SCNode }
+	| { type: "DELETE_SUPPLY_CHAIN_NODE"; payload: string }
+	| { type: "ADD_SUPPLY_CHAIN_NODE"; payload: SCNode }
+	| { type: "ADD_SUPPLY_CHAIN_EDGE"; payload: SCEdge }
+	| { type: "DELETE_SUPPLY_CHAIN_EDGE"; payload: string };

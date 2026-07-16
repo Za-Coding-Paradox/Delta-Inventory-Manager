@@ -113,7 +113,7 @@ export default function ProductOverviewModal({
 					width: { xs: "92%", md: 820 },
 					maxHeight: "90vh",
 					overflowY: "auto",
-					bgcolor: "background.paper",
+					backgroundColor: "background.paper",
 					borderRadius: "24px",
 					boxShadow: 24,
 					p: { xs: 3, md: 4 },

@@ -9,6 +9,8 @@ import type {
 	CustomerAnalyticsData,
 	FunnelStageData,
 	GeoSalesData,
+	SCNode,
+	SCEdge,
 } from "./types";
 
 /* ==========================================================================
@@ -363,4 +365,181 @@ export const DUMMY_GEO_SALES: GeoSalesData[] = [
 	{ region: "Asia Pacific", revenue: 8600, orders: 85 },
 	{ region: "Latin America", revenue: 3200, orders: 30 },
 	{ region: "Middle East & Africa", revenue: 1800, orders: 15 },
+];
+
+/* ==========================================================================
+ * 7. DUMMY SUPPLY CHAIN DATA
+ * ========================================================================== */
+export const DUMMY_SUPPLY_CHAIN_NODES: SCNode[] = [
+	{
+		id: "sup_1",
+		type: "supplierNode",
+		position: { x: 50, y: 80 },
+		data: {
+			label: "Fabric Mills Co.",
+			type: "SUPPLIER",
+			status: "NORMAL",
+			details: "Primary raw material supplier — cotton & polyester blends",
+			stockLevel: 85,
+			capacity: 100,
+		},
+	},
+	{
+		id: "sup_2",
+		type: "supplierNode",
+		position: { x: 50, y: 260 },
+		data: {
+			label: "Global Textiles Ltd.",
+			type: "SUPPLIER",
+			status: "DELAYED",
+			details: "Secondary supplier — specialty fabrics. Shipment delayed 3 days",
+			stockLevel: 40,
+			capacity: 100,
+		},
+	},
+	{
+		id: "sup_3",
+		type: "supplierNode",
+		position: { x: 50, y: 440 },
+		data: {
+			label: "QuickParts Accessories",
+			type: "SUPPLIER",
+			status: "CRITICAL",
+			details: "Buttons, zippers & hardware. Critical stock shortage",
+			stockLevel: 12,
+			capacity: 100,
+		},
+	},
+	{
+		id: "wh_1",
+		type: "warehouseNode",
+		position: { x: 380, y: 140 },
+		data: {
+			label: "Warehouse Alpha",
+			type: "WAREHOUSE",
+			status: "NORMAL",
+			details: "Main processing & storage hub — East district",
+			stockLevel: 78,
+			capacity: 100,
+		},
+	},
+	{
+		id: "wh_2",
+		type: "warehouseNode",
+		position: { x: 380, y: 360 },
+		data: {
+			label: "Warehouse Beta",
+			type: "WAREHOUSE",
+			status: "DELAYED",
+			details: "Secondary warehouse — West district. Receiving backlog",
+			stockLevel: 55,
+			capacity: 100,
+		},
+	},
+	{
+		id: "store_1",
+		type: "storeNode",
+		position: { x: 700, y: 80 },
+		data: {
+			label: "Downtown Flagship",
+			type: "STORE",
+			status: "NORMAL",
+			details: "High-volume retail location",
+			stockLevel: 82,
+			capacity: 100,
+		},
+	},
+	{
+		id: "store_2",
+		type: "storeNode",
+		position: { x: 700, y: 240 },
+		data: {
+			label: "Mall Outlet",
+			type: "STORE",
+			status: "NORMAL",
+			details: "Mid-size mall location",
+			stockLevel: 67,
+			capacity: 100,
+		},
+	},
+	{
+		id: "store_3",
+		type: "storeNode",
+		position: { x: 700, y: 400 },
+		data: {
+			label: "Online Fulfillment",
+			type: "STORE",
+			status: "CRITICAL",
+			details: "E-commerce fulfillment center — running critically low",
+			stockLevel: 18,
+			capacity: 100,
+		},
+	},
+];
+
+export const DUMMY_SUPPLY_CHAIN_EDGES: SCEdge[] = [
+	{
+		id: "e_sup1_wh1",
+		source: "sup_1",
+		target: "wh_1",
+		animated: true,
+		data: { transitTime: "2 days", isAnimated: true },
+		label: "2d transit",
+	},
+	{
+		id: "e_sup2_wh1",
+		source: "sup_2",
+		target: "wh_1",
+		animated: false,
+		data: { transitTime: "4 days", isAnimated: false },
+		label: "4d transit",
+	},
+	{
+		id: "e_sup2_wh2",
+		source: "sup_2",
+		target: "wh_2",
+		animated: false,
+		data: { transitTime: "3 days", isAnimated: false },
+		label: "3d transit",
+	},
+	{
+		id: "e_sup3_wh2",
+		source: "sup_3",
+		target: "wh_2",
+		animated: false,
+		data: { transitTime: "5 days", isAnimated: false },
+		label: "5d transit",
+	},
+	{
+		id: "e_wh1_store1",
+		source: "wh_1",
+		target: "store_1",
+		animated: true,
+		data: { transitTime: "1 day", isAnimated: true },
+		label: "1d transit",
+	},
+	{
+		id: "e_wh1_store2",
+		source: "wh_1",
+		target: "store_2",
+		animated: true,
+		data: { transitTime: "1 day", isAnimated: true },
+		label: "1d transit",
+	},
+	{
+		id: "e_wh2_store2",
+		source: "wh_2",
+		target: "store_2",
+		animated: false,
+		data: { transitTime: "2 days", isAnimated: false },
+		label: "2d transit",
+	},
+	{
+		id: "e_wh2_store3",
+		source: "wh_2",
+		target: "store_3",
+		animated: false,
+		data: { transitTime: "1 day", isAnimated: false },
+		label: "1d transit",
+	},
 ];

@@ -1,3 +1,6 @@
+/* Import Inter font from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
 *,
 *::before,
 *::after {
@@ -13,6 +16,7 @@ body {
 	min-height: 100vh;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
 }
 
 #root {
@@ -23,10 +27,25 @@ a {
 	color: inherit;
 }
 
+/* ────────────────────────────────────────────────────────────
+   KEYFRAME ANIMATIONS
+   ──────────────────────────────────────────────────────────── */
+
 @keyframes fadeSlideIn {
 	from {
 		opacity: 0;
 		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeSlideUp {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
 	}
 	to {
 		opacity: 1;
@@ -48,9 +67,51 @@ a {
 		transform: scale(0);
 	}
 	50% {
-		transform: scale(1.2);
+		transform: scale(1.25);
 	}
 	100% {
 		transform: scale(1);
 	}
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: -400px 0;
+	}
+	100% {
+		background-position: 400px 0;
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
+}
+
+@keyframes rotateIn {
+	from {
+		opacity: 0;
+		transform: rotate(-10deg) scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: rotate(0deg) scale(1);
+	}
+}
+
+/* ────────────────────────────────────────────────────────────
+   UTILITY CLASSES
+   ──────────────────────────────────────────────────────────── */
+
+.fade-slide-in {
+	animation: fadeSlideIn 0.35s ease-out forwards;
+}
+
+.fade-slide-up {
+	animation: fadeSlideUp 0.4s ease-out forwards;
 }

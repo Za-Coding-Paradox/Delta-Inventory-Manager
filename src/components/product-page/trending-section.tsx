@@ -26,7 +26,7 @@ export default function TrendingSection() {
 			sx={{
 				py: 8,
 				backgroundColor: (t) =>
-					t.palette.mode === "light" ? "#F0F4F8" : "#1A1A1A",
+					t.palette.mode === "light" ? "#F5F5F5" : "#0A0A0A",
 			}}
 		>
 			<Box sx={{ maxWidth: 1400, mx: "auto", px: { xs: 2, md: 4 } }}>

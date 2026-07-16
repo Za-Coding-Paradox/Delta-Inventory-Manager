@@ -56,8 +56,8 @@ export default function ProductCard({ product, onQuickView }: Props) {
 					transform: "translateY(-6px)",
 					boxShadow: (t) =>
 						t.palette.mode === "light"
-							? "0px 16px 40px rgba(58, 107, 136, 0.14)"
-							: "0px 16px 40px rgba(0,0,0,0.5)",
+							? "0px 16px 40px rgba(0, 0, 0, 0.14)"
+							: "0px 16px 40px rgba(0, 0, 0, 0.6)",
 				},
 			}}
 			onClick={() => onQuickView(product)}
@@ -159,7 +159,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
 						sx={{
 							fontSize: "1.05rem",
 							fontWeight: 800,
-							color: "primary.main",
+							color: "text.primary",
 							lineHeight: 1.2,
 							flexShrink: 0,
 						}}
@@ -290,7 +290,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
 								sx={{
 									fontSize: "0.76rem",
 									fontWeight: 700,
-									color: "primary.main",
+									color: "text.primary",
 									overflow: "hidden",
 									textOverflow: "ellipsis",
 									whiteSpace: "nowrap",

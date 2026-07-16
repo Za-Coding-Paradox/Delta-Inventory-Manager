@@ -14,6 +14,8 @@ import {
 	DUMMY_NOTIFICATIONS,
 	DUMMY_CALENDAR_EVENTS,
 	COLOR_COMPLEMENTS,
+	DUMMY_SUPPLY_CHAIN_NODES,
+	DUMMY_SUPPLY_CHAIN_EDGES,
 } from "../config/constants";
 import {
 	canAddToCart,
@@ -44,8 +46,9 @@ function hydrateProducts(stored: Product[]): Product[] {
 	}));
 }
 
+const storedProducts = loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS);
 const initialProducts = hydrateProducts(
-	loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS),
+	storedProducts.length < DUMMY_PRODUCTS.length ? DUMMY_PRODUCTS : storedProducts,
 );
 
 const initialState: AppState = {
@@ -73,7 +76,18 @@ const initialState: AppState = {
 		STORAGE_KEYS.NOTIFICATIONS,
 		DUMMY_NOTIFICATIONS,
 	),
-	calendarEvents: DUMMY_CALENDAR_EVENTS,
+	calendarEvents: loadFromStorage(
+		"ecom_calendar_events",
+		DUMMY_CALENDAR_EVENTS,
+	),
+	supplyChainNodes: loadFromStorage(
+		"ecom_supply_chain_nodes",
+		DUMMY_SUPPLY_CHAIN_NODES,
+	),
+	supplyChainEdges: loadFromStorage(
+		"ecom_supply_chain_edges",
+		DUMMY_SUPPLY_CHAIN_EDGES,
+	),
 };
 
 /* ==========================================================================
@@ -281,6 +295,74 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		case "CLEAR_NOTIFICATIONS":
 			return { ...state, notifications: [] };
 
+		case "ADD_CALENDAR_EVENT":
+			return {
+				...state,
+				calendarEvents: [...state.calendarEvents, action.payload],
+			};
+
+		case "UPDATE_CALENDAR_EVENT":
+			return {
+				...state,
+				calendarEvents: state.calendarEvents.map((e) =>
+					e.id === action.payload.id ? action.payload : e,
+				),
+			};
+
+		case "DELETE_CALENDAR_EVENT":
+			return {
+				...state,
+				calendarEvents: state.calendarEvents.filter(
+					(e) => e.id !== action.payload,
+				),
+			};
+
+		case "SET_SUPPLY_CHAIN_NODES":
+			return { ...state, supplyChainNodes: action.payload };
+
+		case "SET_SUPPLY_CHAIN_EDGES":
+			return { ...state, supplyChainEdges: action.payload };
+
+		case "UPDATE_SUPPLY_CHAIN_NODE":
+			return {
+				...state,
+				supplyChainNodes: state.supplyChainNodes.map((n) =>
+					n.id === action.payload.id ? action.payload : n,
+				),
+			};
+
+		case "DELETE_SUPPLY_CHAIN_NODE":
+			return {
+				...state,
+				supplyChainNodes: state.supplyChainNodes.filter(
+					(n) => n.id !== action.payload,
+				),
+				supplyChainEdges: state.supplyChainEdges.filter(
+					(e) =>
+						e.source !== action.payload && e.target !== action.payload,
+				),
+			};
+
+		case "ADD_SUPPLY_CHAIN_NODE":
+			return {
+				...state,
+				supplyChainNodes: [...state.supplyChainNodes, action.payload],
+			};
+
+		case "ADD_SUPPLY_CHAIN_EDGE":
+			return {
+				...state,
+				supplyChainEdges: [...state.supplyChainEdges, action.payload],
+			};
+
+		case "DELETE_SUPPLY_CHAIN_EDGE":
+			return {
+				...state,
+				supplyChainEdges: state.supplyChainEdges.filter(
+					(e) => e.id !== action.payload,
+				),
+			};
+
 		default:
 			return state;
 	}
@@ -323,6 +405,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 			JSON.stringify(state.notifications),
 		);
 	}, [state.notifications]);
+
+	useEffect(() => {
+		localStorage.setItem(
+			"ecom_calendar_events",
+			JSON.stringify(state.calendarEvents),
+		);
+	}, [state.calendarEvents]);
+
+	useEffect(() => {
+		localStorage.setItem(
+			"ecom_supply_chain_nodes",
+			JSON.stringify(state.supplyChainNodes),
+		);
+	}, [state.supplyChainNodes]);
+
+	useEffect(() => {
+		localStorage.setItem(
+			"ecom_supply_chain_edges",
+			JSON.stringify(state.supplyChainEdges),
+		);
+	}, [state.supplyChainEdges]);
 
 	useEffect(() => {
 		dispatch({ type: "SYNC_CART_WISHLIST" });

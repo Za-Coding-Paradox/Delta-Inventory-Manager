@@ -91,8 +91,8 @@ export default function TestimonialsSection() {
 					animation: "fadeSlideIn 0.5s ease-out",
 					background: (t) =>
 						t.palette.mode === "light"
-							? "linear-gradient(135deg, #FFFFFF 0%, #F4F8FB 100%)"
-							: "linear-gradient(135deg, #1A1A1A 0%, #1E2830 100%)",
+							? "linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)"
+							: "linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%)",
 				}}
 			>
 				<CardContent sx={{ p: { xs: 3, md: 5 }, textAlign: "center" }}>
@@ -147,8 +147,7 @@ export default function TestimonialsSection() {
 			<Stack
 				direction="row"
 				spacing={1}
-				justifyContent="center"
-				sx={{ mt: 3 }}
+				sx={{ mt: 3, justifyContent: "center" }}
 			>
 				{reviews.map((_, i) => (
 					<Box
