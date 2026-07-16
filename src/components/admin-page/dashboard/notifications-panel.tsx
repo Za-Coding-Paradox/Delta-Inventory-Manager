@@ -23,7 +23,7 @@ export default function NotificationsPanel() {
 	const isDark = theme.palette.mode === "dark";
 
 	return (
-		<Card variant="widget" sx={{ flex: 1, minWidth: 320, display: "flex", flexDirection: "column", height: "100%", maxHeight: 400 }}>
+		<Card variant="widget" sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
 				<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 					<NotificationsRoundedIcon sx={{ color: "text.secondary" }} />
@@ -62,6 +62,8 @@ export default function NotificationsPanel() {
 											<NotifIcon type={notif.type} />
 										</ListItemIcon>
 										<ListItemText
+											primaryTypographyProps={{ component: "div" }}
+											secondaryTypographyProps={{ component: "div" }}
 											primary={
 												<Typography variant="body2" sx={{ fontWeight: notif.read ? 500 : 700 }} color="text.primary">
 													{notif.message}

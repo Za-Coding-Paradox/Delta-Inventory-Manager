@@ -1,6 +1,6 @@
 // src/components/product-page/category-section.tsx
 import { Box, Typography, Chip } from "@mui/material";
-import { useAppContext } from "../../context/app-context";
+import { useAppContext } from "../../../context/app-context";
 
 export default function CategorySection() {
 	const { state, dispatch } = useAppContext();

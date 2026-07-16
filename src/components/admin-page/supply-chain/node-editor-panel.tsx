@@ -70,19 +70,15 @@ export default function NodeEditorPanel({ node, onClose }: Props) {
 					exit={{ x: "100%", opacity: 0 }}
 					transition={{ duration: 0.3, ease: "easeOut" }}
 					sx={{
-						position: "absolute",
-						top: 16,
-						right: 16,
-						bottom: 16,
-						width: 320,
+						width: "100%",
+						flex: 1,
 						backgroundColor: alpha(theme.palette.background.paper, 0.95),
-						backdropFilter: "blur(12px)",
 						border: `1px solid ${theme.palette.divider}`,
 						borderRadius: "16px",
-						boxShadow: theme.shadows[isDark ? 10 : 6],
+						boxShadow: theme.shadows[1],
 						display: "flex",
 						flexDirection: "column",
-						zIndex: 10,
+						minHeight: 300,
 					}}
 				>
 					<Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${theme.palette.divider}` }}>

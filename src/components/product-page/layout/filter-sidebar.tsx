@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useAppContext } from "../../context/app-context";
+import { useAppContext } from "../../../context/app-context";
 
 const AVAILABILITY_OPTIONS = [
 	{ label: "All Items", value: false },
@@ -21,7 +21,10 @@ const AVAILABILITY_OPTIONS = [
 const useUniqueTags = () => {
 	const { state } = useAppContext();
 	const tags = new Set<string>();
-	state.products.forEach((p) => p.tags.forEach((t) => tags.add(t)));
+	state.products.forEach((p) => {
+		if (state.filters.category && p.category !== state.filters.category) return;
+		p.tags.forEach((t) => tags.add(t));
+	});
 	return Array.from(tags);
 };
 
@@ -89,48 +92,58 @@ export default function FilterSidebar() {
 						mb: 3,
 					}}
 				>
-					<Typography variant="h6" sx={{ fontWeight: 700 }}>
+					<Typography variant="h6" sx={{ fontWeight: 800 }}>
 						Filters
 					</Typography>
 					<Button
 						size="small"
-						variant="text"
-						color="secondary"
+						variant="outlined"
+						color="inherit"
 						onClick={() => dispatch({ type: "RESET_FILTERS" })}
+						sx={{ borderRadius: "8px", textTransform: "none", fontWeight: 700 }}
 					>
 						Clear All
 					</Button>
 				</Box>
 
-				<Typography
-					variant="subtitle2"
-					gutterBottom
-					sx={{ mb: 1.5, fontWeight: 600 }}
-				>
-					Availability
-				</Typography>
-				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3 }}>
-					{AVAILABILITY_OPTIONS.map((opt) => {
-						const selected = filters.showInStockOnly === opt.value;
-						return (
-							<Chip
-								key={opt.label}
-								label={opt.label}
-								clickable
-								color={selected ? "primary" : "default"}
-								variant={selected ? "filled" : "outlined"}
-								onClick={() =>
-									dispatch({
-										type: "SET_FILTERS",
-										payload: { showInStockOnly: opt.value },
-									})
-								}
-							/>
-						);
-					})}
+				<Divider sx={{ mb: 3, borderStyle: "dashed" }} />
+
+				<Box sx={{ mb: 3 }}>
+					<Typography
+						variant="subtitle2"
+						gutterBottom
+						sx={{ mb: 1.5, fontWeight: 600 }}
+					>
+						Availability
+					</Typography>
+					<Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
+						{AVAILABILITY_OPTIONS.map((opt) => {
+							const isSelected = filters.showInStockOnly === opt.value;
+							return (
+								<Chip
+									key={opt.label}
+									label={opt.label}
+									onClick={() =>
+										dispatch({
+											type: "SET_FILTERS",
+											payload: { showInStockOnly: opt.value },
+										})
+									}
+									color={isSelected ? "primary" : "default"}
+									variant={isSelected ? "filled" : "outlined"}
+									sx={{
+										fontWeight: isSelected ? 700 : 500,
+										borderRadius: "8px",
+										transition: "all 0.2s ease",
+										"&:hover": { transform: "translateY(-1px)" }
+									}}
+								/>
+							);
+						})}
+					</Stack>
 				</Box>
 
-				<Divider sx={{ mb: 3 }} />
+				<Divider sx={{ mb: 3, borderStyle: "dashed" }} />
 
 				<Typography
 					variant="subtitle2"

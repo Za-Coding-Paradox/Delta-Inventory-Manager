@@ -16,8 +16,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import SearchIcon from "@mui/icons-material/Search";
-import { useAppContext } from "../../context/app-context";
-import type { Product } from "../../config/types";
+import { useAppContext } from "../../../context/app-context";
+import type { Product } from "../../../config/types";
 
 /* ==========================================================================
  * CONFIGURATION — Replace the value below with your Gemini API key.
@@ -26,7 +26,7 @@ import type { Product } from "../../config/types";
 const GEMINI_API_KEY =
 	import.meta.env.VITE_GEMINI_API_KEY ?? "AQ.Ab8RN6LYajT8RJ7FfHuyi5KC--Abm-CiNrmnBLF3yZCoEHfv6Q";
 
-const GEMINI_MODEL = "gemma-4-31b-it"; // fast & cheap for search tasks
+const GEMINI_MODEL = "gemini-1.5-flash-latest"; // fast & cheap for search tasks
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 const AI_DEBOUNCE_MS = 600;
@@ -171,30 +171,20 @@ function runLocalSearch(query: string, products: Product[]): string[] {
 }
 
 /* ==========================================================================
- * ProductAvatar — initials avatar for dropdown options
+ * ProductAvatar — displays product image
  * ========================================================================== */
-function ProductAvatar({ name }: { name: string }) {
-	const initials = name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-	const shades = [
-		{ bg: "#F5F5F5", text: "#1A1A1A" },
-		{ bg: "#E0E0E0", text: "#111111" },
-		{ bg: "#CCCCCC", text: "#0A0A0A" },
-		{ bg: "#BDBDBD", text: "#000000" },
-		{ bg: "#9E9E9E", text: "#FFFFFF" },
-	];
-	const shade = shades[name.charCodeAt(0) % shades.length];
+function ProductAvatar({ product }: { product: Product }) {
+	const imageUrl = product.colors && product.colors.length > 0 ? product.colors[0].imageUrl : "https://placehold.co/400x400?text=No+Image";
 	return (
 		<Box
+			component="img"
+			src={imageUrl}
+			alt={product.name}
 			sx={{
 				width: 40, height: 40, borderRadius: "50%",
-				backgroundColor: shade.bg,
-				display: "flex", alignItems: "center", justifyContent: "center",
-				fontSize: "13px", fontWeight: 700, color: shade.text,
-				flexShrink: 0, border: "1px solid", borderColor: "divider",
+				objectFit: "cover", flexShrink: 0
 			}}
-		>
-			{initials}
-		</Box>
+		/>
 	);
 }
 
@@ -456,7 +446,7 @@ export default function SearchBar() {
 								"&:last-child": { borderBottom: "none" },
 							}}
 						>
-							<ProductAvatar name={product.name} />
+							<ProductAvatar product={product} />
 							<Box sx={{ flex: 1, minWidth: 0 }}>
 								<Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", lineHeight: 1.3 }}>
 									{product.name}

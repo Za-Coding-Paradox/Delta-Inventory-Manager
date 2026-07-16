@@ -17,7 +17,7 @@ export default function GeoSalesChart() {
 	const isDark = theme.palette.mode === "dark";
 
 	return (
-		<Card variant="widget" sx={{ height: 400, display: "flex", flexDirection: "column" }}>
+		<Card variant="widget" sx={{ height: "100%", minHeight: 400, display: "flex", flexDirection: "column" }}>
 			<Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
 				Regional Sales Distribution
 			</Typography>

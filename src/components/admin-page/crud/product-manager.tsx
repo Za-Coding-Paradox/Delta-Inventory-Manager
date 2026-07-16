@@ -37,7 +37,9 @@ export default function ProductManager() {
 
 	const [search, setSearch] = useState("");
 	const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+	const [tagFilter, setTagFilter] = useState<string | null>(null);
 	const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
+	const [tagAnchorEl, setTagAnchorEl] = useState<null | HTMLElement>(null);
 
 	const [formOpen, setFormOpen] = useState(false);
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -46,12 +48,18 @@ export default function ProductManager() {
 	const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
 	const categories = Array.from(new Set(state.products.map((p) => p.category)));
+	const availableTags = Array.from(new Set(state.products.filter(p => !categoryFilter || p.category === categoryFilter).flatMap(p => p.tags)));
 
 	const filteredProducts = state.products.filter((p) => {
-		const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-							  p.id.toLowerCase().includes(search.toLowerCase());
+		if (!p) return false;
+		const name = p.name || "";
+		const id = p.id || "";
+		const searchLower = search.toLowerCase();
+		const matchesSearch = name.toLowerCase().includes(searchLower) || 
+							  id.toLowerCase().includes(searchLower);
 		const matchesCategory = categoryFilter ? p.category === categoryFilter : true;
-		return matchesSearch && matchesCategory;
+		const matchesTag = tagFilter ? p.tags?.includes(tagFilter) : true;
+		return matchesSearch && matchesCategory && matchesTag;
 	});
 
 	const handleOpenForm = (product: Product | null = null) => {
@@ -127,6 +135,28 @@ export default function ProductManager() {
 						</MenuItem>
 						{categories.map((cat) => (
 							<MenuItem key={cat} onClick={() => { setCategoryFilter(cat); setFilterAnchorEl(null); }}>
+								{cat}
+							</MenuItem>
+						))}
+					</Menu>
+					<Button
+						variant="outlined"
+						size="small"
+						onClick={(e) => setTagAnchorEl(e.currentTarget)}
+						sx={{ borderRadius: "10px", borderColor: tagFilter ? theme.palette.primary.main : undefined }}
+					>
+						{tagFilter || "All Tags"}
+					</Button>
+					<Menu
+						anchorEl={tagAnchorEl}
+						open={Boolean(tagAnchorEl)}
+						onClose={() => setTagAnchorEl(null)}
+					>
+						<MenuItem onClick={() => { setTagFilter(null); setTagAnchorEl(null); }}>
+							All Tags
+						</MenuItem>
+						{availableTags.map((cat) => (
+							<MenuItem key={cat} onClick={() => { setTagFilter(cat); setTagAnchorEl(null); }}>
 								{cat}
 							</MenuItem>
 						))}

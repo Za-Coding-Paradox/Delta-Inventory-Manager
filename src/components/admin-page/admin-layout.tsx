@@ -1,11 +1,12 @@
 // src/components/admin-page/admin-layout.tsx
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
+import { Box, Snackbar, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminSidebar from "./admin-sidebar";
 import AdminTopbar from "./admin-topbar";
+import { useAppContext } from "../../context/app-context";
 
 const SECTION_TITLES: Record<string, string> = {
 	"/admin": "Dashboard",
@@ -15,7 +16,8 @@ const SECTION_TITLES: Record<string, string> = {
 };
 
 export default function AdminLayout() {
-	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+	const { state, dispatch } = useAppContext();
 	const location = useLocation();
 	const theme = useTheme();
 
@@ -59,6 +61,8 @@ export default function AdminLayout() {
 						overflowY: "auto",
 						backgroundColor: theme.palette.background.default,
 						position: "relative",
+						display: "flex",
+						flexDirection: "column",
 					}}
 				>
 					<AnimatePresence mode="wait">
@@ -68,13 +72,30 @@ export default function AdminLayout() {
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0, y: -8 }}
 							transition={{ duration: 0.22, ease: "easeOut" }}
-							style={{ height: "100%" }}
+							style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
 						>
 							<Outlet />
 						</motion.div>
 					</AnimatePresence>
 				</Box>
 			</Box>
+			
+			{/* Global Snackbar */}
+			<Snackbar
+				open={!!state.snackbarMessage}
+				autoHideDuration={4000}
+				onClose={() => dispatch({ type: "CLEAR_SNACKBAR" })}
+				anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+			>
+				<Alert
+					onClose={() => dispatch({ type: "CLEAR_SNACKBAR" })}
+					severity="success"
+					variant="filled"
+					sx={{ width: "100%" }}
+				>
+					{state.snackbarMessage}
+				</Alert>
+			</Snackbar>
 		</Box>
 	);
 }

@@ -11,6 +11,7 @@ import type {
 	GeoSalesData,
 	SCNode,
 	SCEdge,
+	Message,
 } from "./types";
 
 /* ==========================================================================
@@ -55,15 +56,15 @@ export const DUMMY_PRODUCTS: Product[] = [
 				name: "White",
 				hex: "#FFFFFF",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=White+Pants",
+					"https://placehold.co/400x400/png?text=White+Pants",
 			},
 			{
 				name: "Navy",
 				hex: "#001F3F",
-				imageUrl: "https://via.placeholder.com/400x400?text=Navy+Pants",
+				imageUrl: "https://placehold.co/400x400/png?text=Navy+Pants",
 			},
 		],
-		defaultImageUrl: "https://via.placeholder.com/400x400?text=White+Pants",
+		defaultImageUrl: "https://placehold.co/400x400/png?text=White+Pants",
 		category: "Bottoms",
 	},
 	{
@@ -80,16 +81,16 @@ export const DUMMY_PRODUCTS: Product[] = [
 			{
 				name: "Teal",
 				hex: "#008080",
-				imageUrl: "https://via.placeholder.com/400x400?text=Teal+Shirt",
+				imageUrl: "https://placehold.co/400x400/png?text=Teal+Shirt",
 			},
 			{
 				name: "Black",
 				hex: "#000000",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=Black+Shirt",
+					"https://placehold.co/400x400/png?text=Black+Shirt",
 			},
 		],
-		defaultImageUrl: "https://via.placeholder.com/400x400?text=Teal+Shirt",
+		defaultImageUrl: "https://placehold.co/400x400/png?text=Teal+Shirt",
 		category: "Tops",
 	},
 	{
@@ -105,10 +106,10 @@ export const DUMMY_PRODUCTS: Product[] = [
 			{
 				name: "Black",
 				hex: "#000000",
-				imageUrl: "https://via.placeholder.com/400x400?text=Black+Coat",
+				imageUrl: "https://placehold.co/400x400/png?text=Black+Coat",
 			},
 		],
-		defaultImageUrl: "https://via.placeholder.com/400x400?text=Black+Coat",
+		defaultImageUrl: "https://placehold.co/400x400/png?text=Black+Coat",
 		category: "Outerwear",
 	},
 	{
@@ -125,10 +126,10 @@ export const DUMMY_PRODUCTS: Product[] = [
 				name: "Coral",
 				hex: "#FF7F50",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=Coral+Dress",
+					"https://placehold.co/400x400/png?text=Coral+Dress",
 			},
 		],
-		defaultImageUrl: "https://via.placeholder.com/400x400?text=Coral+Dress",
+		defaultImageUrl: "https://placehold.co/400x400/png?text=Coral+Dress",
 		category: "Dresses",
 	},
 	{
@@ -146,17 +147,17 @@ export const DUMMY_PRODUCTS: Product[] = [
 				name: "Black",
 				hex: "#000000",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=Black+Headphones",
+					"https://placehold.co/400x400/png?text=Black+Headphones",
 			},
 			{
 				name: "Silver",
 				hex: "#C0C0C0",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=Silver+Headphones",
+					"https://placehold.co/400x400/png?text=Silver+Headphones",
 			},
 		],
 		defaultImageUrl:
-			"https://via.placeholder.com/400x400?text=Black+Headphones",
+			"https://placehold.co/400x400/png?text=Black+Headphones",
 		category: "Electronics",
 	},
 	{
@@ -172,15 +173,15 @@ export const DUMMY_PRODUCTS: Product[] = [
 			{
 				name: "White",
 				hex: "#FFFFFF",
-				imageUrl: "https://via.placeholder.com/400x400?text=White+Mug",
+				imageUrl: "https://placehold.co/400x400/png?text=White+Mug",
 			},
 			{
 				name: "Black",
 				hex: "#000000",
-				imageUrl: "https://via.placeholder.com/400x400?text=Black+Mug",
+				imageUrl: "https://placehold.co/400x400/png?text=Black+Mug",
 			},
 		],
-		defaultImageUrl: "https://via.placeholder.com/400x400?text=White+Mug",
+		defaultImageUrl: "https://placehold.co/400x400/png?text=White+Mug",
 		category: "Home & Kitchen",
 	},
 	{
@@ -198,11 +199,11 @@ export const DUMMY_PRODUCTS: Product[] = [
 				name: "Black",
 				hex: "#000000",
 				imageUrl:
-					"https://via.placeholder.com/400x400?text=Black+Keyboard",
+					"https://placehold.co/400x400/png?text=Black+Keyboard",
 			},
 		],
 		defaultImageUrl:
-			"https://via.placeholder.com/400x400?text=Black+Keyboard",
+			"https://placehold.co/400x400/png?text=Black+Keyboard",
 		category: "Electronics",
 	},
 ];
@@ -541,5 +542,25 @@ export const DUMMY_SUPPLY_CHAIN_EDGES: SCEdge[] = [
 		animated: false,
 		data: { transitTime: "1 day", isAnimated: false },
 		label: "1d transit",
+	},
+];
+
+/* ==========================================================================
+ * 5. DUMMY MESSAGES
+ * ========================================================================== */
+export const DUMMY_MESSAGES: Message[] = [
+	{
+		id: "msg_1",
+		sender: "Supplier Alpha",
+		content: "We have an update regarding the shipment schedule for the upcoming batch of Winter Coats.",
+		timestamp: new Date().toISOString(),
+		read: false,
+	},
+	{
+		id: "msg_2",
+		sender: "Logistics Team",
+		content: "The delivery truck for the downtown flagship store is slightly delayed due to weather.",
+		timestamp: new Date(Date.now() - 3600000).toISOString(),
+		read: true,
 	},
 ];

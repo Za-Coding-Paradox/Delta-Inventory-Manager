@@ -47,6 +47,8 @@ interface AdminSidebarProps {
 	collapsed: boolean;
 }
 
+import { useState } from "react";
+
 export default function AdminSidebar({ collapsed }: AdminSidebarProps) {
 	const navigate = useNavigate();
 	const location = useLocation();

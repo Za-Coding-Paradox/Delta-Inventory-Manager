@@ -14,8 +14,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
-import type { Product } from "../../config/types";
-import { useAppContext } from "../../context/app-context";
+import type { Product } from "../../../config/types";
+import { useAppContext } from "../../../context/app-context";
 
 interface Props {
 	product: Product;
@@ -30,7 +30,7 @@ const STATUS_CONFIG = {
 
 export default function ProductCard({ product, onQuickView }: Props) {
 	const { state, dispatch } = useAppContext();
-	const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+	const [selectedColor, setSelectedColor] = useState(product.colors && product.colors.length > 0 ? product.colors[0] : { name: "Default", hex: "#000", imageUrl: "https://placehold.co/400x400?text=No+Image" });
 	const isWishlisted = state.wishlist.some((p) => p.id === product.id);
 
 	const statusCfg = STATUS_CONFIG[product.status];

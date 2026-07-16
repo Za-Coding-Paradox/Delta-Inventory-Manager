@@ -66,6 +66,15 @@ export interface AdminNotification {
 	read: boolean;
 }
 
+export interface Message {
+	id: string;
+	sender: string;
+	avatar?: string;
+	content: string;
+	timestamp: string;
+	read: boolean;
+}
+
 export type CalendarEventType = "RESTOCK" | "PROMOTION" | "MEETING" | "LAUNCH";
 
 export interface CalendarEvent {
@@ -194,9 +203,11 @@ export interface AppState {
 
 	// Admin State
 	notifications: AdminNotification[];
+	messages: Message[];
 	calendarEvents: CalendarEvent[];
 	supplyChainNodes: SCNode[];
 	supplyChainEdges: SCEdge[];
+	snackbarMessage: string | null;
 }
 
 // Discriminated Union for all Reducer Actions
@@ -240,6 +251,8 @@ export type AppAction =
 	| { type: "ADD_NOTIFICATION"; payload: AdminNotification }
 	| { type: "MARK_NOTIFICATION_READ"; payload: string } // payload is notificationId
 	| { type: "CLEAR_NOTIFICATIONS" }
+	| { type: "CLEAR_SNACKBAR" }
+	| { type: "MARK_MESSAGE_READ"; payload: string }
 
 	// Admin - Calendar Events
 	| { type: "ADD_CALENDAR_EVENT"; payload: CalendarEvent }

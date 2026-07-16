@@ -123,7 +123,14 @@ export default function ProductOverviewModal({
 			>
 				<IconButton
 					onClick={onClose}
-					sx={{ position: "absolute", right: 16, top: 16 }}
+					sx={{
+						position: "absolute",
+						right: 16,
+						top: 16,
+						zIndex: 10,
+						backgroundColor: "background.paper",
+						"&:hover": { backgroundColor: "action.hover" },
+					}}
 				>
 					<CloseIcon />
 				</IconButton>

@@ -1,13 +1,13 @@
 // src/components/product-page/user-home.tsx
-import HeroSection from "./hero-section";
-import CategorySection from "./category-section";
-import TrendingSection from "./trending-section";
-import ProductGrid from "./product-grid";
-import PricingSection from "./pricing-section";
-import TestimonialsSection from "./testimonials-section";
-import FaqSection from "./faq-section";
-import ContactSection from "./contact-section";
-import FooterSection from "./footer-section";
+import HeroSection from "./sections/hero-section";
+import CategorySection from "./sections/category-section";
+import TrendingSection from "./sections/trending-section";
+import ProductGrid from "./components/product-grid";
+import PricingSection from "./sections/pricing-section";
+import TestimonialsSection from "./sections/testimonials-section";
+import FaqSection from "./sections/faq-section";
+import FeaturesSection from "./sections/features-section";
+import Footer from "./layout/footer";
 
 export default function UserHome() {
 	return (
@@ -19,8 +19,8 @@ export default function UserHome() {
 			<PricingSection />
 			<TestimonialsSection />
 			<FaqSection />
-			<ContactSection />
-			<FooterSection />
+			<FeaturesSection />
+			<Footer />
 		</>
 	);
 }

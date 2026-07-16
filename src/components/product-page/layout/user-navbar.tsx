@@ -15,7 +15,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import EmailIcon from "@mui/icons-material/Email";
-import { useAppContext } from "../../context/app-context";
+import { useAppContext } from "../../../context/app-context";
 import SearchBar from "./search-bar";
 
 interface Props {

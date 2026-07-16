@@ -3,17 +3,17 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
 import UserNavbar from "./user-navbar";
-import CartDrawer from "./modals/cart-drawer";
-import WishlistDrawer from "./modals/wishlist-drawer";
-import ProductOverviewModal from "./modals/product-overview-modal";
-import ContactModal from "./modals/contact-modal";
-import type { Product } from "../../config/types";
-import { useAppContext } from "../../context/app-context";
+import CartDrawer from "../modals/cart-drawer";
+import WishlistDrawer from "../modals/wishlist-drawer";
+import ProductOverviewModal from "../modals/product-overview-modal";
+import ContactModal from "../modals/contact-modal";
+import type { Product } from "../../../config/types";
+import { useAppContext } from "../../../context/app-context";
 import {
 	canAddToCart,
 	getMaxAddableQty,
 	getLiveProduct,
-} from "../../utils/cart-sync";
+} from "../../../utils/cart-sync";
 
 export default function UserLayout() {
 	const { state, dispatch } = useAppContext();

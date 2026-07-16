@@ -16,6 +16,7 @@ import {
 	COLOR_COMPLEMENTS,
 	DUMMY_SUPPLY_CHAIN_NODES,
 	DUMMY_SUPPLY_CHAIN_EDGES,
+	DUMMY_MESSAGES,
 } from "../config/constants";
 import {
 	canAddToCart,
@@ -76,6 +77,7 @@ const initialState: AppState = {
 		STORAGE_KEYS.NOTIFICATIONS,
 		DUMMY_NOTIFICATIONS,
 	),
+	messages: DUMMY_MESSAGES,
 	calendarEvents: loadFromStorage(
 		"ecom_calendar_events",
 		DUMMY_CALENDAR_EVENTS,
@@ -88,6 +90,7 @@ const initialState: AppState = {
 		"ecom_supply_chain_edges",
 		DUMMY_SUPPLY_CHAIN_EDGES,
 	),
+	snackbarMessage: null,
 };
 
 /* ==========================================================================
@@ -236,28 +239,58 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				},
 			};
 
-		case "ADD_PRODUCT":
-			return { ...state, products: [...state.products, action.payload] };
+		case "ADD_PRODUCT": {
+			const newNotification = {
+				id: Date.now().toString(),
+				type: "SUCCESS" as const,
+				title: "Product Added",
+				message: `${action.payload.name} was successfully added to inventory.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
+			return {
+				...state,
+				products: [...state.products, action.payload],
+				notifications: [newNotification, ...state.notifications],
+				snackbarMessage: newNotification.message,
+			};
+		}
 
 		case "UPDATE_PRODUCT": {
 			const updatedProducts = state.products.map((p) =>
 				p.id === action.payload.id ? action.payload : p,
 			);
+			const newNotification = {
+				id: Date.now().toString(),
+				type: "INFO" as const,
+				title: "Product Updated",
+				message: `${action.payload.name} details were updated.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				products: updatedProducts,
 				cart: syncCartWithProducts(state.cart, updatedProducts),
-				wishlist: syncWishlistWithProducts(
-					state.wishlist,
-					updatedProducts,
-				),
+				wishlist: syncWishlistWithProducts(state.wishlist, updatedProducts),
+				notifications: [newNotification, ...state.notifications],
+				snackbarMessage: newNotification.message,
 			};
 		}
 
 		case "DELETE_PRODUCT": {
+			const deletedProduct = state.products.find((p) => p.id === action.payload);
 			const updatedProducts = state.products.filter(
 				(p) => p.id !== action.payload,
 			);
+			const newNotification = {
+				id: Date.now().toString(),
+				type: "ALERT" as const,
+				title: "Product Deleted",
+				message: `${deletedProduct?.name || "A product"} was removed from inventory.`,
+				timestamp: new Date().toISOString(),
+				read: false,
+			};
 			return {
 				...state,
 				products: updatedProducts,
@@ -265,6 +298,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 					(item) => item.product.id !== action.payload,
 				),
 				wishlist: state.wishlist.filter((p) => p.id !== action.payload),
+				notifications: [newNotification, ...state.notifications],
+				snackbarMessage: newNotification.message,
 			};
 		}
 
@@ -294,6 +329,17 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 
 		case "CLEAR_NOTIFICATIONS":
 			return { ...state, notifications: [] };
+			
+		case "CLEAR_SNACKBAR":
+			return { ...state, snackbarMessage: null };
+
+		case "MARK_MESSAGE_READ":
+			return {
+				...state,
+				messages: state.messages.map((m) =>
+					m.id === action.payload ? { ...m, read: true } : m,
+				),
+			};
 
 		case "ADD_CALENDAR_EVENT":
 			return {

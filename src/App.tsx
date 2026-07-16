@@ -6,7 +6,7 @@ import { AppProvider } from "./context/app-provider";
 import { useAppContext } from "./context/app-context";
 import { getTheme } from "./config/theme";
 
-import UserLayout from "./components/product-page/user-layout";
+import UserLayout from "./components/product-page/layout/user-layout";
 import UserHome from "./components/product-page/user-home";
 
 import AdminLayout from "./components/admin-page/admin-layout";

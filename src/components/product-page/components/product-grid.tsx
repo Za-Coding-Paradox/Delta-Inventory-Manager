@@ -1,11 +1,11 @@
 // src/components/product-page/product-grid.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Grid, Box, Typography, Pagination, Stack } from "@mui/material";
 import { useOutletContext } from "react-router-dom";
-import { useAppContext } from "../../context/app-context";
+import { useAppContext } from "../../../context/app-context";
 import ProductCard from "./product-card";
-import FilterSidebar from "./filter-sidebar";
-import type { Product } from "../../config/types";
+import FilterSidebar from "../layout/filter-sidebar";
+import type { Product } from "../../../config/types";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -17,12 +17,9 @@ export default function ProductGrid() {
 	}>();
 
 	const [page, setPage] = useState(1);
-	const [prevFilters, setPrevFilters] = useState(filters);
-
-	if (filters !== prevFilters) {
-		setPrevFilters(filters);
+	useEffect(() => {
 		setPage(1);
-	}
+	}, [filters]);
 
 	const filteredProducts = products.filter((p) => {
 		// 1. If AI Search returns specific IDs, ONLY show those IDs
