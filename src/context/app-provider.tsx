@@ -163,6 +163,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			return {
 				...state,
 				cart: syncCartWithProducts(nextCart, state.products),
+				wishlist: state.wishlist.filter((p) => p.id !== liveProduct.id),
 				notifications: [newNotification, ...state.notifications],
 			};
 		}
@@ -264,31 +265,45 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			};
 
 		case "ADD_PRODUCT": {
+			const product = { ...action.payload };
+			if (product.stockQuantity === 0 && product.status === "IN_STOCK") {
+				product.status = "OUT_OF_STOCK" as const;
+			} else if (product.stockQuantity > 0 && product.status === "OUT_OF_STOCK") {
+				product.status = "IN_STOCK" as const;
+			}
+
 			const newNotification = {
 				id: Date.now().toString(),
 				type: "SUCCESS" as const,
 				title: "Product Added",
-				message: `${action.payload.name} was successfully added to inventory.`,
+				message: `${product.name} was successfully added to inventory.`,
 				timestamp: new Date().toISOString(),
 				read: false,
 			};
 			return {
 				...state,
-				products: [...state.products, action.payload],
+				products: [...state.products, product],
 				notifications: [newNotification, ...state.notifications],
 				snackbarMessage: newNotification.message,
 			};
 		}
 
 		case "UPDATE_PRODUCT": {
+			const product = { ...action.payload };
+			if (product.stockQuantity === 0 && product.status === "IN_STOCK") {
+				product.status = "OUT_OF_STOCK" as const;
+			} else if (product.stockQuantity > 0 && product.status === "OUT_OF_STOCK") {
+				product.status = "IN_STOCK" as const;
+			}
+
 			const updatedProducts = state.products.map((p) =>
-				p.id === action.payload.id ? action.payload : p,
+				p.id === product.id ? product : p,
 			);
 			const newNotification = {
 				id: Date.now().toString(),
 				type: "INFO" as const,
 				title: "Product Updated",
-				message: `${action.payload.name} details were updated.`,
+				message: `${product.name} details were updated.`,
 				timestamp: new Date().toISOString(),
 				read: false,
 			};

@@ -49,9 +49,9 @@ export const getTheme = (mode: "light" | "dark") => {
 						dark: "#333333",
 						contrastText: "#FFFFFF",
 					},
-					success: { main: "#2E7D32", contrastText: "#FFFFFF" },
-					warning: { main: "#8B6914", contrastText: "#FFFFFF" },
-					error: { main: "#B71C1C", contrastText: "#FFFFFF" },
+					success: { main: "#6B8E7B", contrastText: "#FFFFFF" }, // Sage
+					warning: { main: "#D4B872", contrastText: "#111111" }, // Sand
+					error: { main: "#A95C68", contrastText: "#FFFFFF" }, // Dusty Red
 					background: { default: "#F5F5F5", paper: "#FFFFFF" },
 					text: { primary: "#0A0A0A", secondary: "#5C5C5C" },
 					divider: alpha("#0A0A0A", 0.1),
@@ -69,9 +69,9 @@ export const getTheme = (mode: "light" | "dark") => {
 						dark: "#787878",
 						contrastText: "#000000",
 					},
-					success: { main: "#66BB6A", contrastText: "#000000" },
-					warning: { main: "#FFA726", contrastText: "#000000" },
-					error: { main: "#EF5350", contrastText: "#FFFFFF" },
+					success: { main: "#5A7A62", contrastText: "#FFFFFF" }, // Moss
+					warning: { main: "#C1A65C", contrastText: "#111111" }, // Ochre
+					error: { main: "#8B4545", contrastText: "#FFFFFF" }, // Muted Brick
 					background: { default: "#000000", paper: "#0F0F0F" },
 					text: { primary: "#F5F5F5", secondary: "#A0A0A0" },
 					divider: alpha("#F5F5F5", 0.1),
