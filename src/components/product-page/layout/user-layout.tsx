@@ -70,6 +70,8 @@ export default function UserLayout() {
 			/>
 
 			<Box component="main" sx={{ flexGrow: 1 }}>
+				{/* The Outlet renders whatever child route is currently active (e.g., UserHome) */}
+				{/* We pass onQuickView via context so child components can open the global product modal */}
 				<Outlet context={{ onQuickView: setSelectedProduct }} />
 			</Box>
 

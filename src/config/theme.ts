@@ -32,6 +32,8 @@ const sharedTypography: ThemeOptions["typography"] = {
 
 /* ==========================================================================
  * 3. THEME GENERATOR
+ * Uses MUI's createTheme to generate light and dark mode variations.
+ * This centralizes styling so components don't need hardcoded hex values.
  * ========================================================================== */
 export const getTheme = (mode: "light" | "dark") => {
 	const palette =

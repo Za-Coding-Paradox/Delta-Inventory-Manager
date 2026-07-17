@@ -12,6 +12,7 @@ import Footer from "./layout/footer";
 export default function UserHome() {
 	return (
 		<>
+			{/* React Fragment used to return multiple top-level sections without adding extra DOM nodes */}
 			<HeroSection />
 			<TrendingSection />
 			<CategorySection />

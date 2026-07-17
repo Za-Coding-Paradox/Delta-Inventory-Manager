@@ -222,6 +222,7 @@ export interface SCEdge {
 
 /* ==========================================================================
  * 5. GLOBAL APP STATE & REDUCER (Context API)
+ * Centralized state structure ensuring predictability and strict typing across the app.
  * ========================================================================== */
 
 export interface AppState {

@@ -1,8 +1,10 @@
 // src/components/admin-page/supply-chain/warehouse-node.tsx
-import { Handle, Position } from "@xyflow/react";
+// A custom React Flow node representing a WAREHOUSE — the middle of the supply chain.
+// Warehouses RECEIVE goods from suppliers (target) and SEND goods to stores (source).
+import { Handle, Position } from "@xyflow/react"; // Handle = connection point; Position = side of the node
 import { Box, Typography, alpha } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
+import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded"; // box/storage icon for warehouses
 import type { SupplyChainNodeData } from "../../../config/types";
 
 interface Props {
@@ -35,10 +37,24 @@ export default function WarehouseNode({ data, selected }: Props) {
 				position: "relative",
 			}}
 		>
-			<Handle type="target" position={Position.Left} style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }} />
-			<Handle type="source" position={Position.Right} style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }} />
-			
-			{/* Status Dot */}
+			{/*
+				Warehouse nodes sit in the MIDDLE of the supply chain, so they need BOTH handle types:
+				- type="target" on the LEFT: receives incoming connections from suppliers
+				- type="source" on the RIGHT: sends outgoing connections to stores
+				This is different from SupplierNode (source only) and StoreNode (target only).
+			*/}
+			<Handle
+				type="target"
+				position={Position.Left} // left side = incoming goods from supplier
+				style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }}
+			/>
+			<Handle
+				type="source"
+				position={Position.Right} // right side = outgoing goods to store
+				style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }}
+			/>
+
+			{/* Status indicator dot — color shows operational health */}
 			<Box
 				sx={{
 					position: "absolute",
@@ -48,7 +64,7 @@ export default function WarehouseNode({ data, selected }: Props) {
 					height: 10,
 					borderRadius: "50%",
 					backgroundColor: getDotColor(),
-					boxShadow: `0 0 4px ${getDotColor()}`,
+					boxShadow: `0 0 4px ${getDotColor()}`, // glowing aura effect around the dot
 				}}
 			/>
 
@@ -72,7 +88,8 @@ export default function WarehouseNode({ data, selected }: Props) {
 						{data.label}
 					</Typography>
 				</Box>
-				
+
+				{/* Capacity display — only shown when capacity data exists on the node */}
 				{data.capacity !== undefined && (
 					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
 						<Typography variant="caption" color="text.secondary">Capacity</Typography>

@@ -39,6 +39,8 @@ async function runGeminiSearch(
 	query: string,
 	products: Product[],
 ): Promise<string[]> {
+	// 1. Prepare a lightweight payload of product metadata to send to the LLM.
+	// We strip out images/colors to save tokens, reduce cost, and speed up generation.
 	const productList = products.map((p) => ({
 		id: p.id,
 		name: p.name,
@@ -294,6 +296,9 @@ export default function SearchBar() {
 				});
 			} finally {
 				setLoading(false);
+				setTimeout(() => {
+					document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+				}, 100);
 			}
 		},
 		[state.products, dispatch],

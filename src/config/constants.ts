@@ -561,6 +561,8 @@ export const DUMMY_MESSAGES: Message[] = [
 
 /* ==========================================================================
  * 6. DUMMY ORDERS DATA (Seeded historical orders — drives analytics)
+ * This data acts as the historical database that powers the admin dashboard charts.
+ * Changing this will directly affect the Recharts components' output.
  * ========================================================================== */
 
 // Helper: create a date N days ago as ISO string

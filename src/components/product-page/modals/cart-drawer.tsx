@@ -102,7 +102,8 @@ export default function CartDrawer({
 	const handlePlaceOrder = () => {
 		if (checkoutItems.length === 0) return;
 
-		// Build the Order object from checkoutItems
+		// Build the Order object from checkoutItems.
+		// This snapshots the current price and selected options into a permanent historical record.
 		const order: Order = {
 			id: `order_${Date.now()}`,
 			items: checkoutItems.map((item) => ({

@@ -10,6 +10,7 @@ import { SystemHealthWidget, OrdersWidget, MessagesWidget, ReviewsWidget, QuickA
 export default function AdminDashboard() {
 	return (
 		<Box sx={{ p: { xs: 2, md: 4 } }}>
+			{/* MUI Grid is used to structure the admin widgets into a responsive, multi-column layout */}
 			<Grid container spacing={3}>
 				{/* Left Column: Aggregates, Notifications, Health */}
 				<Grid size={{ xs: 12, lg: 3 }}>
