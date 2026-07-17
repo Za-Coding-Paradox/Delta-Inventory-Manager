@@ -50,9 +50,14 @@ function hydrateProducts(stored: Product[]): Product[] {
 	}));
 }
 
-const storedProducts = loadFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, DUMMY_PRODUCTS);
+const storedProducts = loadFromStorage<Product[]>(
+	STORAGE_KEYS.PRODUCTS,
+	DUMMY_PRODUCTS,
+);
 const initialProducts = hydrateProducts(
-	storedProducts.length < DUMMY_PRODUCTS.length ? DUMMY_PRODUCTS : storedProducts,
+	storedProducts.length < DUMMY_PRODUCTS.length
+		? DUMMY_PRODUCTS
+		: storedProducts,
 );
 
 const initialState: AppState = {
@@ -224,13 +229,11 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			const liveProduct =
 				state.products.find((p) => p.id === action.payload.id) ??
 				action.payload;
-			const exists = state.wishlist.some(
-				(p) => p.id === liveProduct.id,
-			);
+			const exists = state.wishlist.some((p) => p.id === liveProduct.id);
 			const newNotification: AdminNotification = {
 				id: `notif_wishlist_${Date.now()}_${Math.random()}`,
 				type: "INFO",
-				message: `A user ${exists ? 'removed' : 'added'} ${liveProduct.name} ${exists ? 'from' : 'to'} their wishlist.`,
+				message: `A user ${exists ? "removed" : "added"} ${liveProduct.name} ${exists ? "from" : "to"} their wishlist.`,
 				timestamp: new Date().toISOString(),
 				read: false,
 			};
@@ -268,7 +271,10 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			const product = { ...action.payload };
 			if (product.stockQuantity === 0 && product.status === "IN_STOCK") {
 				product.status = "OUT_OF_STOCK" as const;
-			} else if (product.stockQuantity > 0 && product.status === "OUT_OF_STOCK") {
+			} else if (
+				product.stockQuantity > 0 &&
+				product.status === "OUT_OF_STOCK"
+			) {
 				product.status = "IN_STOCK" as const;
 			}
 
@@ -292,7 +298,10 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			const product = { ...action.payload };
 			if (product.stockQuantity === 0 && product.status === "IN_STOCK") {
 				product.status = "OUT_OF_STOCK" as const;
-			} else if (product.stockQuantity > 0 && product.status === "OUT_OF_STOCK") {
+			} else if (
+				product.stockQuantity > 0 &&
+				product.status === "OUT_OF_STOCK"
+			) {
 				product.status = "IN_STOCK" as const;
 			}
 
@@ -311,14 +320,19 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				...state,
 				products: updatedProducts,
 				cart: syncCartWithProducts(state.cart, updatedProducts),
-				wishlist: syncWishlistWithProducts(state.wishlist, updatedProducts),
+				wishlist: syncWishlistWithProducts(
+					state.wishlist,
+					updatedProducts,
+				),
 				notifications: [newNotification, ...state.notifications],
 				snackbarMessage: newNotification.message,
 			};
 		}
 
 		case "DELETE_PRODUCT": {
-			const deletedProduct = state.products.find((p) => p.id === action.payload);
+			const deletedProduct = state.products.find(
+				(p) => p.id === action.payload,
+			);
 			const updatedProducts = state.products.filter(
 				(p) => p.id !== action.payload,
 			);
@@ -343,11 +357,16 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		}
 
 		case "PLACE_ORDER": {
-			let newNotifications = [...state.notifications];
+			const newNotifications = [...state.notifications];
 			const updatedProducts = state.products.map((p) => {
-				const orderItem = action.payload.items.find((i) => i.productId === p.id);
+				const orderItem = action.payload.items.find(
+					(i) => i.productId === p.id,
+				);
 				if (!orderItem) return p;
-				const newStock = Math.max(0, p.stockQuantity - orderItem.quantity);
+				const newStock = Math.max(
+					0,
+					p.stockQuantity - orderItem.quantity,
+				);
 				let newStatus = p.status;
 				if (newStock === 0) newStatus = "OUT_OF_STOCK";
 
@@ -376,7 +395,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			};
 			newNotifications.unshift(orderNotif);
 
-			let newCalendarEvents = [...state.calendarEvents];
+			const newCalendarEvents = [...state.calendarEvents];
 			if (action.payload.deliveryDate) {
 				newCalendarEvents.push({
 					id: `evt_deliv_${action.payload.id}`,
@@ -391,7 +410,10 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				...state,
 				products: updatedProducts,
 				cart: syncCartWithProducts(state.cart, updatedProducts),
-				wishlist: syncWishlistWithProducts(state.wishlist, updatedProducts),
+				wishlist: syncWishlistWithProducts(
+					state.wishlist,
+					updatedProducts,
+				),
 				orders: [action.payload, ...state.orders],
 				notifications: newNotifications,
 				calendarEvents: newCalendarEvents,
@@ -416,27 +438,47 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		}
 
 		case "UPDATE_ORDER_STATUS": {
-			const order = state.orders.find((o) => o.id === action.payload.orderId);
+			const order = state.orders.find(
+				(o) => o.id === action.payload.orderId,
+			);
 			let updatedProducts = state.products;
 
-			if (order && action.payload.status === "CANCELLED" && order.status !== "CANCELLED") {
+			if (
+				order &&
+				action.payload.status === "CANCELLED" &&
+				order.status !== "CANCELLED"
+			) {
 				// Restock items
 				updatedProducts = state.products.map((p) => {
-					const orderItem = order.items.find((i) => i.productId === p.id);
+					const orderItem = order.items.find(
+						(i) => i.productId === p.id,
+					);
 					if (!orderItem) return p;
 					const newStock = p.stockQuantity + orderItem.quantity;
 					return {
 						...p,
 						stockQuantity: newStock,
-						status: newStock > 0 && p.status === "OUT_OF_STOCK" ? "IN_STOCK" : p.status,
+						status:
+							newStock > 0 && p.status === "OUT_OF_STOCK"
+								? "IN_STOCK"
+								: p.status,
 					};
 				});
-			} else if (order && order.status === "CANCELLED" && action.payload.status !== "CANCELLED") {
+			} else if (
+				order &&
+				order.status === "CANCELLED" &&
+				action.payload.status !== "CANCELLED"
+			) {
 				// Undo restock if status changed from cancelled to something else
 				updatedProducts = state.products.map((p) => {
-					const orderItem = order.items.find((i) => i.productId === p.id);
+					const orderItem = order.items.find(
+						(i) => i.productId === p.id,
+					);
 					if (!orderItem) return p;
-					const newStock = Math.max(0, p.stockQuantity - orderItem.quantity);
+					const newStock = Math.max(
+						0,
+						p.stockQuantity - orderItem.quantity,
+					);
 					return {
 						...p,
 						stockQuantity: newStock,
@@ -457,8 +499,17 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 			return {
 				...state,
 				products: updatedProducts,
-				cart: updatedProducts !== state.products ? syncCartWithProducts(state.cart, updatedProducts) : state.cart,
-				wishlist: updatedProducts !== state.products ? syncWishlistWithProducts(state.wishlist, updatedProducts) : state.wishlist,
+				cart:
+					updatedProducts !== state.products
+						? syncCartWithProducts(state.cart, updatedProducts)
+						: state.cart,
+				wishlist:
+					updatedProducts !== state.products
+						? syncWishlistWithProducts(
+								state.wishlist,
+								updatedProducts,
+							)
+						: state.wishlist,
 				orders: state.orders.map((o) =>
 					o.id === action.payload.orderId
 						? { ...o, status: action.payload.status }
@@ -481,7 +532,9 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 
 			return {
 				...state,
-				orders: state.orders.map((o) => (o.id === action.payload.id ? action.payload : o)),
+				orders: state.orders.map((o) =>
+					o.id === action.payload.id ? action.payload : o,
+				),
 				notifications: [orderNotif, ...state.notifications],
 				snackbarMessage: `Order #${action.payload.id.slice(-4).toUpperCase()} updated successfully!`,
 			};
@@ -532,12 +585,14 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		case "DELETE_NOTIFICATION":
 			return {
 				...state,
-				notifications: state.notifications.filter((n) => n.id !== action.payload),
+				notifications: state.notifications.filter(
+					(n) => n.id !== action.payload,
+				),
 			};
 
 		case "CLEAR_NOTIFICATIONS":
 			return { ...state, notifications: [] };
-			
+
 		case "CLEAR_SNACKBAR":
 			return { ...state, snackbarMessage: null };
 
@@ -614,7 +669,9 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		}
 
 		case "DELETE_SUPPLY_CHAIN_NODE": {
-			const nodeToDelete = state.supplyChainNodes.find((n) => n.id === action.payload);
+			const nodeToDelete = state.supplyChainNodes.find(
+				(n) => n.id === action.payload,
+			);
 			const notif = {
 				id: `notif_sc_delete_${Date.now()}`,
 				type: "ALERT" as const,
@@ -630,7 +687,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				),
 				supplyChainEdges: state.supplyChainEdges.filter(
 					(e) =>
-						e.source !== action.payload && e.target !== action.payload,
+						e.source !== action.payload &&
+						e.target !== action.payload,
 				),
 				notifications: [notif, ...state.notifications],
 				snackbarMessage: "Node deleted successfully",
@@ -736,11 +794,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 	}, [state.orders]);
 
 	useEffect(() => {
-		localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(state.reviews));
+		localStorage.setItem(
+			STORAGE_KEYS.REVIEWS,
+			JSON.stringify(state.reviews),
+		);
 	}, [state.reviews]);
 
 	useEffect(() => {
-		localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(state.messages));
+		localStorage.setItem(
+			STORAGE_KEYS.MESSAGES,
+			JSON.stringify(state.messages),
+		);
 	}, [state.messages]);
 
 	useEffect(() => {
@@ -794,7 +858,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 		});
 
 		const suggestions: CartSuggestion[] = state.products
-			.filter((p) => !cartProductIds.includes(p.id) && p.status === "IN_STOCK")
+			.filter(
+				(p) =>
+					!cartProductIds.includes(p.id) && p.status === "IN_STOCK",
+			)
 			.map((product) => {
 				let score = 0;
 				let reason = "";
