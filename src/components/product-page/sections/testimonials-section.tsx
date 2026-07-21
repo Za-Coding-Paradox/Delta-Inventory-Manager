@@ -40,7 +40,7 @@ const reviews = [
 	},
 ];
 
-const AUTO_INTERVAL_MS = 4000;
+const AUTO_INTERVAL_MS = 2500;
 
 export default function TestimonialsSection() {
 	const [activeStep, setActiveStep] = useState(0);
@@ -65,17 +65,31 @@ export default function TestimonialsSection() {
 				px: { xs: 2, md: 4 },
 			}}
 		>
-			<Grid container spacing={{ xs: 4, md: 8 }} sx={{ alignItems: "center" }}>
+			<Grid
+				container
+				spacing={{ xs: 4, md: 8 }}
+				sx={{ alignItems: "center" }}
+			>
 				{/* Left Column: Our Promise */}
 				<Grid size={{ xs: 12, md: 5 }}>
 					<Box sx={{ pr: { md: 4 } }}>
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								gap: 1.5,
+								mb: 3,
+							}}
+						>
 							<Box
 								sx={{
 									width: 48,
 									height: 48,
 									borderRadius: "12px",
-									backgroundColor: (t) => t.palette.mode === "light" ? "#F5F5F5" : "#1A1A1A",
+									backgroundColor: (t) =>
+										t.palette.mode === "light"
+											? "#F5F5F5"
+											: "#1A1A1A",
 									display: "flex",
 									alignItems: "center",
 									justifyContent: "center",
@@ -84,33 +98,72 @@ export default function TestimonialsSection() {
 							>
 								<VerifiedUserIcon />
 							</Box>
-							<Typography variant="overline" sx={{ fontWeight: 800, letterSpacing: 2, color: "text.secondary" }}>
+							<Typography
+								variant="overline"
+								sx={{
+									fontWeight: 800,
+									letterSpacing: 2,
+									color: "text.secondary",
+								}}
+							>
 								AURA PROMISE
 							</Typography>
 						</Box>
 
-						<Typography variant="h3" sx={{ fontWeight: 800, mb: 3, lineHeight: 1.2 }}>
+						<Typography
+							variant="h3"
+							sx={{ fontWeight: 800, mb: 3, lineHeight: 1.2 }}
+						>
 							Uncompromising Quality & Care.
 						</Typography>
 
-						<Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7, fontSize: "1.1rem" }}>
-							We believe that shopping should be effortless and the products you receive should exceed expectations. From sustainable sourcing to impeccable design, our commitment is to provide you with pieces that stand the test of time, accompanied by a world-class customer experience.
+						<Typography
+							variant="body1"
+							color="text.secondary"
+							sx={{ mb: 4, lineHeight: 1.7, fontSize: "1.1rem" }}
+						>
+							We believe that shopping should be effortless and
+							the products you receive should exceed expectations.
+							From sustainable sourcing to impeccable design, our
+							commitment is to provide you with pieces that stand
+							the test of time, accompanied by a world-class
+							customer experience.
 						</Typography>
 
 						<Stack direction="row" spacing={4}>
 							<Box>
-								<Typography variant="h4" sx={{ fontWeight: 800, color: "primary.main" }}>
+								<Typography
+									variant="h4"
+									sx={{
+										fontWeight: 800,
+										color: "primary.main",
+									}}
+								>
 									10k+
 								</Typography>
-								<Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+								<Typography
+									variant="body2"
+									color="text.secondary"
+									sx={{ fontWeight: 600 }}
+								>
 									Happy Customers
 								</Typography>
 							</Box>
 							<Box>
-								<Typography variant="h4" sx={{ fontWeight: 800, color: "primary.main" }}>
+								<Typography
+									variant="h4"
+									sx={{
+										fontWeight: 800,
+										color: "primary.main",
+									}}
+								>
 									4.9
 								</Typography>
-								<Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+								<Typography
+									variant="body2"
+									color="text.secondary"
+									sx={{ fontWeight: 600 }}
+								>
 									Average Rating
 								</Typography>
 							</Box>
@@ -133,7 +186,8 @@ export default function TestimonialsSection() {
 								display: "flex",
 								flexDirection: "column",
 								justifyContent: "center",
-								animation: "fadeSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+								animation:
+									"fadeSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
 								background: (t) =>
 									t.palette.mode === "light"
 										? "linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)"
@@ -146,7 +200,12 @@ export default function TestimonialsSection() {
 								borderColor: "divider",
 							}}
 						>
-							<CardContent sx={{ p: { xs: 4, md: 6 }, textAlign: "center" }}>
+							<CardContent
+								sx={{
+									p: { xs: 4, md: 6 },
+									textAlign: "center",
+								}}
+							>
 								<Box
 									sx={{
 										display: "flex",
@@ -158,7 +217,10 @@ export default function TestimonialsSection() {
 									{[...Array(5)].map((_, i) => (
 										<StarIcon
 											key={i}
-											sx={{ color: "#FFB400", fontSize: 24 }}
+											sx={{
+												color: "#FFB400",
+												fontSize: 24,
+											}}
 										/>
 									))}
 								</Box>
@@ -176,8 +238,15 @@ export default function TestimonialsSection() {
 								>
 									&ldquo;{review.text}&rdquo;
 								</Typography>
-								
-								<Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
+
+								<Box
+									sx={{
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: 2,
+									}}
+								>
 									<Avatar
 										sx={{
 											width: 48,
@@ -190,10 +259,20 @@ export default function TestimonialsSection() {
 										{review.avatar}
 									</Avatar>
 									<Box sx={{ textAlign: "left" }}>
-										<Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+										<Typography
+											variant="subtitle1"
+											sx={{
+												fontWeight: 800,
+												lineHeight: 1.2,
+											}}
+										>
 											{review.name}
 										</Typography>
-										<Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+										<Typography
+											variant="caption"
+											color="text.secondary"
+											sx={{ fontWeight: 600 }}
+										>
 											Verified Buyer
 										</Typography>
 									</Box>
@@ -218,11 +297,15 @@ export default function TestimonialsSection() {
 											activeStep === i
 												? "primary.main"
 												: "divider",
-										transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+										transition:
+											"all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
 										cursor: "pointer",
 										"&:hover": {
-											backgroundColor: activeStep === i ? "primary.main" : "text.disabled",
-										}
+											backgroundColor:
+												activeStep === i
+													? "primary.main"
+													: "text.disabled",
+										},
 									}}
 								/>
 							))}

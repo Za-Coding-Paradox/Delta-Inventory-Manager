@@ -39,11 +39,7 @@ interface Props {
 	initialStep?: number;
 }
 
-export default function CartDrawer({
-	open,
-	onClose,
-	initialStep = 0,
-}: Props) {
+export default function CartDrawer({ open, onClose, initialStep = 0 }: Props) {
 	const { state, dispatch } = useAppContext();
 	const [activeStep, setActiveStep] = useState(initialStep);
 	const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
@@ -62,8 +58,7 @@ export default function CartDrawer({
 	const handleToggleCheckout = (item: CartItem) => {
 		const key = cartItemKey(item.product.id, item.selectedColorName);
 		const isAdded = checkoutItems.some(
-			(i) =>
-				cartItemKey(i.product.id, i.selectedColorName) === key,
+			(i) => cartItemKey(i.product.id, i.selectedColorName) === key,
 		);
 		if (isAdded) {
 			setCheckoutItems(
@@ -113,7 +108,10 @@ export default function CartDrawer({
 				quantity: item.quantity,
 				priceAtOrder: item.product.price,
 			})),
-			total: checkoutItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+			total: checkoutItems.reduce(
+				(sum, item) => sum + item.product.price * item.quantity,
+				0,
+			),
 			deliveryType: deliveryType as "standard" | "express",
 			deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
 			timestamp: new Date().toISOString(),
@@ -128,7 +126,10 @@ export default function CartDrawer({
 		checkoutItems.forEach((item) => {
 			dispatch({
 				type: "REMOVE_FROM_CART",
-				payload: { productId: item.product.id, selectedColorName: item.selectedColorName },
+				payload: {
+					productId: item.product.id,
+					selectedColorName: item.selectedColorName,
+				},
 			});
 		});
 
@@ -173,7 +174,11 @@ export default function CartDrawer({
 						sx={{ mb: 3, height: 6, borderRadius: 3 }}
 					/>
 
-					<Stepper activeStep={activeStep} sx={{ mb: 3 }} alternativeLabel>
+					<Stepper
+						activeStep={activeStep}
+						sx={{ mb: 3 }}
+						alternativeLabel
+					>
 						{steps.map((label) => (
 							<Step key={label}>
 								<StepLabel>{label}</StepLabel>
@@ -198,8 +203,10 @@ export default function CartDrawer({
 											item.product.id,
 										);
 										const remaining = live
-											? getRemainingStock(state, item.product.id) +
-												item.quantity
+											? getRemainingStock(
+													state,
+													item.product.id,
+												) + item.quantity
 											: 0;
 										const atMax =
 											live &&
@@ -262,11 +269,14 @@ export default function CartDrawer({
 													<Box
 														sx={{
 															display: "flex",
-															alignItems: "center",
+															alignItems:
+																"center",
 															mt: 1,
 															border: 1,
-															borderColor: "divider",
-															borderRadius: "12px",
+															borderColor:
+																"divider",
+															borderRadius:
+																"12px",
 															width: "fit-content",
 															overflow: "hidden",
 														}}
@@ -288,7 +298,8 @@ export default function CartDrawer({
 																px: 1.5,
 																fontWeight: 700,
 																minWidth: 24,
-																textAlign: "center",
+																textAlign:
+																	"center",
 															}}
 														>
 															{item.quantity}
@@ -310,7 +321,11 @@ export default function CartDrawer({
 														<Typography
 															variant="caption"
 															color="text.secondary"
-															sx={{ mt: 0.5, display: "block" }}
+															sx={{
+																mt: 0.5,
+																display:
+																	"block",
+															}}
 														>
 															{remaining} in stock
 														</Typography>
@@ -345,7 +360,9 @@ export default function CartDrawer({
 																type: "REMOVE_FROM_CART",
 																payload: {
 																	productId:
-																		item.product.id,
+																		item
+																			.product
+																			.id,
 																	selectedColorName:
 																		item.selectedColorName,
 																},
@@ -370,7 +387,13 @@ export default function CartDrawer({
 								>
 									Select items to checkout:
 								</Typography>
-								<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+								<Box
+									sx={{
+										display: "flex",
+										flexWrap: "wrap",
+										gap: 1,
+									}}
+								>
 									{state.cart.map((item) => {
 										const key = cartItemKey(
 											item.product.id,
@@ -388,8 +411,16 @@ export default function CartDrawer({
 												key={key}
 												label={`${item.product.name} (×${item.quantity})`}
 												clickable
-												color={isAdded ? "primary" : "default"}
-												variant={isAdded ? "filled" : "outlined"}
+												color={
+													isAdded
+														? "primary"
+														: "default"
+												}
+												variant={
+													isAdded
+														? "filled"
+														: "outlined"
+												}
 												onClick={() =>
 													handleToggleCheckout(item)
 												}
@@ -403,7 +434,11 @@ export default function CartDrawer({
 
 						{activeStep === 2 && (
 							<Box>
-								<Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+								<Typography
+									variant="h6"
+									gutterBottom
+									sx={{ fontWeight: 700 }}
+								>
 									Checkout Details
 								</Typography>
 								<Divider sx={{ mb: 3 }} />
@@ -422,17 +457,30 @@ export default function CartDrawer({
 										val && setDeliveryType(val)
 									}
 									size="small"
-									sx={{ mb: 4, width: "100%", display: "flex", gap: 1 }}
+									sx={{
+										mb: 4,
+										width: "100%",
+										display: "flex",
+										gap: 1,
+									}}
 								>
 									<ToggleButton
 										value="standard"
-										sx={{ flex: 1, py: 1.5, borderRadius: "12px !important" }}
+										sx={{
+											flex: 1,
+											py: 1.5,
+											borderRadius: "12px !important",
+										}}
 									>
 										Standard (5–7 Days)
 									</ToggleButton>
 									<ToggleButton
 										value="express"
-										sx={{ flex: 1, py: 1.5, borderRadius: "12px !important" }}
+										sx={{
+											flex: 1,
+											py: 1.5,
+											borderRadius: "12px !important",
+										}}
 									>
 										Express (2 Days)
 									</ToggleButton>
@@ -545,10 +593,17 @@ export default function CartDrawer({
 										justifyContent: "space-between",
 									}}
 								>
-									<Typography variant="h6" sx={{ fontWeight: 700 }}>
+									<Typography
+										variant="h6"
+										sx={{ fontWeight: 700 }}
+									>
 										Total
 									</Typography>
-									<Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+									<Typography
+										variant="h6"
+										color="primary"
+										sx={{ fontWeight: 800 }}
+									>
 										$
 										{checkoutItems
 											.reduce(
@@ -568,7 +623,11 @@ export default function CartDrawer({
 									size="large"
 									disabled={checkoutItems.length === 0}
 									onClick={handlePlaceOrder}
-									sx={{ mt: 3, borderRadius: "14px", py: 1.5 }}
+									sx={{
+										mt: 3,
+										borderRadius: "14px",
+										py: 1.5,
+									}}
 								>
 									Place Order
 								</Button>
@@ -583,7 +642,11 @@ export default function CartDrawer({
 							{activeStep === 0 && (
 								<Typography
 									variant="h6"
-									sx={{ mb: 2, textAlign: "right", fontWeight: 700 }}
+									sx={{
+										mb: 2,
+										textAlign: "right",
+										fontWeight: 700,
+									}}
 								>
 									Total: ${totalPrice.toFixed(2)}
 								</Typography>

@@ -109,11 +109,13 @@ const initialState: AppState = {
 		"ecom_calendar_events",
 		DUMMY_CALENDAR_EVENTS,
 	),
-	supplyChainNodes: loadFromStorage( // nodes represent suppliers, warehouses, and stores on the flow diagram
+	supplyChainNodes: loadFromStorage(
+		// nodes represent suppliers, warehouses, and stores on the flow diagram
 		"ecom_supply_chain_nodes",
 		DUMMY_SUPPLY_CHAIN_NODES,
 	),
-	supplyChainEdges: loadFromStorage( // edges represent the connections (arrows) between nodes
+	supplyChainEdges: loadFromStorage(
+		// edges represent the connections (arrows) between nodes
 		"ecom_supply_chain_edges",
 		DUMMY_SUPPLY_CHAIN_EDGES,
 	),
@@ -160,15 +162,16 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 
 			// If item already exists, increase its quantity; otherwise append a new cart entry
 			const nextCart = existingItem
-				? state.cart.map((item) =>
-						item.product.id === liveProduct.id &&
-						item.selectedColorName === selectedColorName
-							? {
-									...item,
-									product: liveProduct, // update with fresh product data
-									quantity: item.quantity + addQty, // add to existing quantity
-								}
-							: item, // leave all other items unchanged
+				? state.cart.map(
+						(item) =>
+							item.product.id === liveProduct.id &&
+							item.selectedColorName === selectedColorName
+								? {
+										...item,
+										product: liveProduct, // update with fresh product data
+										quantity: item.quantity + addQty, // add to existing quantity
+									}
+								: item, // leave all other items unchanged
 					)
 				: [
 						...state.cart, // keep existing cart items
@@ -409,7 +412,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 
 				// If stock is critically low (5 or fewer), push an admin alert notification
 				if (newStock > 0 && newStock <= 5) {
-					newNotifications.unshift({ // unshift adds to the front of the array (newest first)
+					newNotifications.unshift({
+						// unshift adds to the front of the array (newest first)
 						id: `notif_low_stock_${p.id}_${Date.now()}`,
 						type: "ALERT" as const,
 						title: "Low Stock Warning",
@@ -428,6 +432,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 				type: "SUCCESS" as const,
 				title: "New Order Placed",
 				// slice(-4) takes the last 4 characters of the order ID for a short reference code
+				// could result in bugs when there are millions of orders, and the product duplicates the short reference code every 1 thousand orders.
 				message: `Order #${action.payload.id.slice(-4).toUpperCase()} placed by ${action.payload.customerName} — $${action.payload.total.toFixed(2)} (${action.payload.deliveryType}).`,
 				timestamp: action.payload.timestamp,
 				read: false,
@@ -646,8 +651,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		case "MARK_MESSAGE_READ":
 			return {
 				...state,
-				messages: state.messages.map((m) =>
-					m.id === action.payload ? { ...m, read: true } : m, // mark only the matching message as read
+				messages: state.messages.map(
+					(m) => (m.id === action.payload ? { ...m, read: true } : m), // mark only the matching message as read
 				),
 			};
 
@@ -677,8 +682,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
 		case "UPDATE_CALENDAR_EVENT":
 			return {
 				...state,
-				calendarEvents: state.calendarEvents.map((e) =>
-					e.id === action.payload.id ? action.payload : e, // replace matching event with updated version
+				calendarEvents: state.calendarEvents.map(
+					(e) => (e.id === action.payload.id ? action.payload : e), // replace matching event with updated version
 				),
 			};
 
@@ -941,16 +946,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 				let reason = ""; // human-readable reason shown in the suggestion UI
 
 				const productColors = product.colors.map((c) => c.name);
-				const hasComplementaryColor = productColors.some((c) =>
-					complementaryColors.has(c), // does this product come in a color that complements the cart?
+				const hasComplementaryColor = productColors.some(
+					(c) => complementaryColors.has(c), // does this product come in a color that complements the cart?
 				);
 				if (hasComplementaryColor) {
 					score += 2; // color match is worth 2 points (stronger signal)
 					reason = `Complements the ${cartColors.join(", ")} in your cart`;
 				}
 
-				const hasCommonTag = product.tags.some((tag) =>
-					cartTags.has(tag), // does this product share any style/category tags with cart items?
+				const hasCommonTag = product.tags.some(
+					(tag) => cartTags.has(tag), // does this product share any style/category tags with cart items?
 				);
 				if (hasCommonTag) {
 					score += 1; // tag match worth 1 point

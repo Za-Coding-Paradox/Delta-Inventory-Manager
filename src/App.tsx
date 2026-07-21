@@ -41,7 +41,6 @@ const AppContent = () => {
 			<BrowserRouter>
 				{/* Routes looks at the current URL and renders the first <Route> that matches it. */}
 				<Routes>
-
 					{/* "/" is the root path for the user-facing storefront.
 					    The element prop tells React Router which component to render when this path is matched.
 					    UserLayout acts as a persistent shell (e.g. with a navbar) and child routes render inside it via <Outlet>. */}
@@ -61,10 +60,12 @@ const AppContent = () => {
 						    "/admin/products", "/admin/orders", "/admin/supply-chain", "/admin/analytics" */}
 						<Route path="products" element={<ProductManager />} />
 						<Route path="orders" element={<OrderManager />} />
-						<Route path="supply-chain" element={<SupplyChainViewer />} />
+						<Route
+							path="supply-chain"
+							element={<SupplyChainViewer />}
+						/>
 						<Route path="analytics" element={<AnalyticsPage />} />
 					</Route>
-
 				</Routes>
 			</BrowserRouter>
 		</ThemeProvider>
@@ -75,8 +76,11 @@ const AppContent = () => {
 // AppProvider wraps AppContent so that the global context (theme, state, dispatch) is available
 // to AppContent and ALL of its descendant components via useAppContext().
 const App = () => (
-	<AppProvider> {/* sets up the global app context (state + dispatch) for the whole tree */}
-		<AppContent /> {/* reads from that context to build the theme and routing tree */}
+	<AppProvider>
+		{" "}
+		{/* sets up the global app context (state + dispatch) for the whole tree */}
+		<AppContent />{" "}
+		{/* reads from that context to build the theme and routing tree */}
 	</AppProvider>
 );
 
