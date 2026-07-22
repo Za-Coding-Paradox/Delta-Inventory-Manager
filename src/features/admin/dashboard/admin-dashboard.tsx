@@ -1,4 +1,3 @@
-// src/components/admin-page/dashboard/admin-dashboard.tsx
 import { Box, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import AggregatesWidget from "./kpi-cards";
@@ -10,9 +9,7 @@ import { SystemHealthWidget, OrdersWidget, MessagesWidget, ReviewsWidget, QuickA
 export default function AdminDashboard() {
 	return (
 		<Box sx={{ p: { xs: 2, md: 4 } }}>
-			{/* MUI Grid is used to structure the admin widgets into a responsive, multi-column layout */}
 			<Grid container spacing={3}>
-				{/* Left Column: Aggregates, Notifications, Health */}
 				<Grid size={{ xs: 12, lg: 3 }}>
 					<Stack spacing={3} sx={{ height: "100%" }}>
 						<AggregatesWidget />
@@ -21,32 +18,19 @@ export default function AdminDashboard() {
 						<QuickActionsWidget />
 					</Stack>
 				</Grid>
-
-				{/* Right Area */}
 				<Grid size={{ xs: 12, lg: 9 }}>
 					<Grid container spacing={3}>
-						
-						{/* Top Section */}
 						<Grid size={{ xs: 12 }}>
 							<Grid container spacing={3}>
-								{/* Middle Column (Orders, Reviews, Messages) */}
 								<Grid size={{ xs: 12, lg: 8 }}>
 									<Stack spacing={3} sx={{ height: "100%" }}>
-										{/* Orders and Reviews side-by-side */}
 										<Grid container spacing={3}>
-											<Grid size={{ xs: 12, sm: 6 }}>
-												<OrdersWidget />
-											</Grid>
-											<Grid size={{ xs: 12, sm: 6 }}>
-												<ReviewsWidget />
-											</Grid>
+											<Grid size={{ xs: 12, sm: 6 }}><OrdersWidget /></Grid>
+											<Grid size={{ xs: 12, sm: 6 }}><ReviewsWidget /></Grid>
 										</Grid>
-										{/* Messages spanning full width below Orders & Reviews */}
 										<MessagesWidget />
 									</Stack>
 								</Grid>
-
-								{/* Far Right Column (Calendar and System Health) */}
 								<Grid size={{ xs: 12, lg: 4 }}>
 									<Stack spacing={3} sx={{ height: "100%" }}>
 										<CalendarWidget />
@@ -55,12 +39,7 @@ export default function AdminDashboard() {
 								</Grid>
 							</Grid>
 						</Grid>
-
-						{/* Bottom Section: Supply Chain */}
-						<Grid size={{ xs: 12 }}>
-							<SupplyChainAlerts />
-						</Grid>
-						
+						<Grid size={{ xs: 12 }}><SupplyChainAlerts /></Grid>
 					</Grid>
 				</Grid>
 			</Grid>

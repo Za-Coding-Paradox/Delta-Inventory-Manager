@@ -1,102 +1,22 @@
-// src/components/admin-page/supply-chain/warehouse-node.tsx
-// A custom React Flow node representing a WAREHOUSE — the middle of the supply chain.
-// Warehouses RECEIVE goods from suppliers (target) and SEND goods to stores (source).
-import { Handle, Position } from "@xyflow/react"; // Handle = connection point; Position = side of the node
-import { Box, Typography, alpha } from "@mui/material";
+import React from "react";
+import { Handle, Position } from "@xyflow/react";
 import { useTheme } from "@mui/material/styles";
-import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded"; // box/storage icon for warehouses
+import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
 import type { SupplyChainNodeData } from "../../../config/types";
+import { BaseNode } from "./components/base-node";
 
 interface Props {
 	data: SupplyChainNodeData;
 	selected: boolean;
 }
 
-export default function WarehouseNode({ data, selected }: Props) {
+export default React.memo(function WarehouseNode({ data, selected }: Props) {
 	const theme = useTheme();
-	const isDark = theme.palette.mode === "dark";
-
-	const getDotColor = () => {
-		if (data.status === "CRITICAL") return theme.palette.error.main;
-		if (data.status === "DELAYED") return theme.palette.warning.main;
-		return theme.palette.success.main;
-	};
 
 	return (
-		<Box
-			sx={{
-				minWidth: 160,
-				borderRadius: "16px",
-				border: `1px solid ${selected ? theme.palette.text.primary : theme.palette.divider}`,
-				backgroundColor: "background.paper",
-				boxShadow: selected
-					? `0 0 0 2px ${alpha(theme.palette.text.primary, 0.2)}`
-					: theme.shadows[isDark ? 4 : 1],
-				transition: "all 0.2s ease",
-				p: 2,
-				position: "relative",
-			}}
-		>
-			{/*
-				Warehouse nodes sit in the MIDDLE of the supply chain, so they need BOTH handle types:
-				- type="target" on the LEFT: receives incoming connections from suppliers
-				- type="source" on the RIGHT: sends outgoing connections to stores
-				This is different from SupplierNode (source only) and StoreNode (target only).
-			*/}
-			<Handle
-				type="target"
-				position={Position.Left} // left side = incoming goods from supplier
-				style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }}
-			/>
-			<Handle
-				type="source"
-				position={Position.Right} // right side = outgoing goods to store
-				style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }}
-			/>
-
-			{/* Status indicator dot — color shows operational health */}
-			<Box
-				sx={{
-					position: "absolute",
-					top: 12,
-					right: 12,
-					width: 10,
-					height: 10,
-					borderRadius: "50%",
-					backgroundColor: getDotColor(),
-					boxShadow: `0 0 4px ${getDotColor()}`, // glowing aura effect around the dot
-				}}
-			/>
-
-			<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-				<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-					<Box
-						sx={{
-							width: 32,
-							height: 32,
-							borderRadius: "8px",
-							backgroundColor: alpha(theme.palette.text.primary, 0.05),
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							color: "text.primary",
-						}}
-					>
-						<Inventory2RoundedIcon fontSize="small" />
-					</Box>
-					<Typography variant="subtitle2" noWrap sx={{ fontWeight: 800, flex: 1, pr: 2 }}>
-						{data.label}
-					</Typography>
-				</Box>
-
-				{/* Capacity display — only shown when capacity data exists on the node */}
-				{data.capacity !== undefined && (
-					<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
-						<Typography variant="caption" color="text.secondary">Capacity</Typography>
-						<Typography variant="caption" sx={{ fontWeight: 700 }}>{data.stockLevel || 0} / {data.capacity}</Typography>
-					</Box>
-				)}
-			</Box>
-		</Box>
+		<BaseNode data={data} selected={selected} icon={<Inventory2RoundedIcon fontSize="small" />} capacityLabel="Capacity">
+			<Handle type="target" position={Position.Left} style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }} />
+			<Handle type="source" position={Position.Right} style={{ width: 8, height: 8, backgroundColor: theme.palette.text.secondary, border: "none" }} />
+		</BaseNode>
 	);
-}
+});
