@@ -6,16 +6,16 @@ import { AppProvider } from "./context/app-provider";
 import { useAppContext } from "./context/app-context";
 import { getTheme } from "./config/theme";
 
-import UserLayout from "./components/product-page/layout/user-layout";
-import UserHome from "./components/product-page/user-home";
+import UserLayout from "./features/product/layout/user-layout";
+import UserHome from "./features/product/user-home";
 
-import AdminLayout from "./components/admin-page/admin-layout";
-import AdminDashboard from "./components/admin-page/dashboard/admin-dashboard";
-import ProductManager from "./components/admin-page/crud/product-manager";
-import SupplyChainViewer from "./components/admin-page/supply-chain/supply-chain-viewer";
-import AnalyticsPage from "./components/admin-page/analytics/analytics-page";
+import AdminLayout from "./features/admin/admin-layout";
+import AdminDashboard from "./features/admin/dashboard/admin-dashboard";
+import ProductManager from "./features/admin/crud/product-manager";
+import SupplyChainViewer from "./features/admin/supply-chain/supply-chain-viewer";
+import AnalyticsPage from "./features/admin/analytics/analytics-page";
 
-import OrderManager from "./components/admin-page/crud/order-manager";
+import OrderManager from "./features/admin/crud/order-manager";
 
 // AppContent is a separate inner component so it can read from AppContext.
 // The context only becomes available INSIDE AppProvider, so AppContent must live as a child of App (which wraps AppProvider).
