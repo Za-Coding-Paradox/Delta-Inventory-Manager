@@ -28,8 +28,10 @@ import {
 	cartItemKey,
 	clampCartItemQty,
 	getLiveProduct,
-	getRemainingStock,
 } from "../../../utils/cart-sync";
+import { CartReviewStep } from "./components/CartReviewStep";
+import { CartSelectItemsStep } from "./components/CartSelectItemsStep";
+import { CartCheckoutStep } from "./components/CartCheckoutStep";
 
 const steps = ["Review Cart", "Select Items", "Checkout"];
 
@@ -188,450 +190,38 @@ export default function CartDrawer({ open, onClose, initialStep = 0 }: Props) {
 
 					<Box sx={{ flexGrow: 1, overflowY: "auto", pr: 0.5 }}>
 						{activeStep === 0 && (
-							<>
-								{state.cart.length === 0 ? (
-									<Typography
-										sx={{ textAlign: "center", mt: 5 }}
-										color="text.secondary"
-									>
-										Your cart is empty.
-									</Typography>
-								) : (
-									state.cart.map((item) => {
-										const live = getLiveProduct(
-											state.products,
-											item.product.id,
-										);
-										const remaining = live
-											? getRemainingStock(
-													state,
-													item.product.id,
-												) + item.quantity
-											: 0;
-										const atMax =
-											live &&
-											item.quantity >=
-												clampCartItemQty(
-													state.cart,
-													item,
-													live,
-													remaining,
-												);
-
-										return (
-											<Paper
-												key={cartItemKey(
-													item.product.id,
-													item.selectedColorName,
-												)}
-												elevation={0}
-												sx={{
-													p: 2,
-													mb: 2,
-													display: "flex",
-													alignItems: "center",
-													borderRadius: "16px",
-													border: 1,
-													borderColor: "divider",
-												}}
-											>
-												<Box
-													component="img"
-													src={
-														item.product.colors.find(
-															(c) =>
-																c.name ===
-																item.selectedColorName,
-														)?.imageUrl
-													}
-													sx={{
-														width: 64,
-														height: 64,
-														borderRadius: "12px",
-														mr: 2,
-														objectFit: "cover",
-													}}
-												/>
-												<Box sx={{ flexGrow: 1 }}>
-													<Typography
-														variant="body2"
-														sx={{ fontWeight: 600 }}
-													>
-														{item.product.name}
-													</Typography>
-													<Typography
-														variant="caption"
-														color="text.secondary"
-													>
-														{item.selectedColorName}
-													</Typography>
-
-													<Box
-														sx={{
-															display: "flex",
-															alignItems:
-																"center",
-															mt: 1,
-															border: 1,
-															borderColor:
-																"divider",
-															borderRadius:
-																"12px",
-															width: "fit-content",
-															overflow: "hidden",
-														}}
-													>
-														<IconButton
-															size="small"
-															onClick={() =>
-																handleQtyChange(
-																	item,
-																	-1,
-																)
-															}
-														>
-															<RemoveIcon fontSize="small" />
-														</IconButton>
-														<Typography
-															variant="body2"
-															sx={{
-																px: 1.5,
-																fontWeight: 700,
-																minWidth: 24,
-																textAlign:
-																	"center",
-															}}
-														>
-															{item.quantity}
-														</Typography>
-														<IconButton
-															size="small"
-															disabled={!!atMax}
-															onClick={() =>
-																handleQtyChange(
-																	item,
-																	1,
-																)
-															}
-														>
-															<AddIcon fontSize="small" />
-														</IconButton>
-													</Box>
-													{live && (
-														<Typography
-															variant="caption"
-															color="text.secondary"
-															sx={{
-																mt: 0.5,
-																display:
-																	"block",
-															}}
-														>
-															{remaining} in stock
-														</Typography>
-													)}
-												</Box>
-												<Box
-													sx={{
-														display: "flex",
-														flexDirection: "column",
-														alignItems: "flex-end",
-													}}
-												>
-													<Typography
-														variant="body2"
-														sx={{
-															mb: 1,
-															fontWeight: 700,
-															color: "primary.main",
-														}}
-													>
-														$
-														{(
-															item.product.price *
-															item.quantity
-														).toFixed(2)}
-													</Typography>
-													<IconButton
-														size="small"
-														color="error"
-														onClick={() =>
-															dispatch({
-																type: "REMOVE_FROM_CART",
-																payload: {
-																	productId:
-																		item
-																			.product
-																			.id,
-																	selectedColorName:
-																		item.selectedColorName,
-																},
-															})
-														}
-													>
-														<DeleteOutlinedIcon fontSize="small" />
-													</IconButton>
-												</Box>
-											</Paper>
-										);
+							<CartReviewStep
+								state={state}
+								handleQtyChange={handleQtyChange}
+								handleRemove={(item) =>
+									dispatch({
+										type: "REMOVE_FROM_CART",
+										payload: {
+											productId: item.product.id,
+											selectedColorName: item.selectedColorName,
+										},
 									})
-								)}
-							</>
+								}
+							/>
 						)}
 
 						{activeStep === 1 && (
-							<Box>
-								<Typography
-									variant="subtitle2"
-									sx={{ mb: 2, fontWeight: 600 }}
-								>
-									Select items to checkout:
-								</Typography>
-								<Box
-									sx={{
-										display: "flex",
-										flexWrap: "wrap",
-										gap: 1,
-									}}
-								>
-									{state.cart.map((item) => {
-										const key = cartItemKey(
-											item.product.id,
-											item.selectedColorName,
-										);
-										const isAdded = checkoutItems.some(
-											(i) =>
-												cartItemKey(
-													i.product.id,
-													i.selectedColorName,
-												) === key,
-										);
-										return (
-											<Chip
-												key={key}
-												label={`${item.product.name} (×${item.quantity})`}
-												clickable
-												color={
-													isAdded
-														? "primary"
-														: "default"
-												}
-												variant={
-													isAdded
-														? "filled"
-														: "outlined"
-												}
-												onClick={() =>
-													handleToggleCheckout(item)
-												}
-												sx={{ py: 2.5, height: "auto" }}
-											/>
-										);
-									})}
-								</Box>
-							</Box>
+							<CartSelectItemsStep
+								state={state}
+								checkoutItems={checkoutItems}
+								handleToggleCheckout={handleToggleCheckout}
+							/>
 						)}
 
 						{activeStep === 2 && (
-							<Box>
-								<Typography
-									variant="h6"
-									gutterBottom
-									sx={{ fontWeight: 700 }}
-								>
-									Checkout Details
-								</Typography>
-								<Divider sx={{ mb: 3 }} />
-
-								<Typography
-									variant="subtitle2"
-									gutterBottom
-									sx={{ fontWeight: 600 }}
-								>
-									1. Select Delivery Type
-								</Typography>
-								<ToggleButtonGroup
-									value={deliveryType}
-									exclusive
-									onChange={(_e, val) =>
-										val && setDeliveryType(val)
-									}
-									size="small"
-									sx={{
-										mb: 4,
-										width: "100%",
-										display: "flex",
-										gap: 1,
-									}}
-								>
-									<ToggleButton
-										value="standard"
-										sx={{
-											flex: 1,
-											py: 1.5,
-											borderRadius: "12px !important",
-										}}
-									>
-										Standard (5–7 Days)
-									</ToggleButton>
-									<ToggleButton
-										value="express"
-										sx={{
-											flex: 1,
-											py: 1.5,
-											borderRadius: "12px !important",
-										}}
-									>
-										Express (2 Days)
-									</ToggleButton>
-								</ToggleButtonGroup>
-
-								<Typography
-									variant="subtitle2"
-									gutterBottom
-									sx={{ fontWeight: 600 }}
-								>
-									2. Choose Delivery Date
-								</Typography>
-								<DatePicker
-									label="Delivery Date"
-									value={deliveryDate}
-									onChange={(newValue) =>
-										setDeliveryDate(newValue)
-									}
-									disablePast
-									slotProps={{
-										textField: {
-											size: "small",
-											fullWidth: true,
-											sx: { mb: 4 },
-										},
-									}}
-								/>
-
-								<Typography
-									variant="subtitle2"
-									gutterBottom
-									sx={{ fontWeight: 600 }}
-								>
-									3. Order Summary
-								</Typography>
-								<Paper
-									variant="outlined"
-									sx={{ p: 2, mb: 3, borderRadius: "16px" }}
-								>
-									{checkoutItems.map((item) => (
-										<Box
-											key={cartItemKey(
-												item.product.id,
-												item.selectedColorName,
-											)}
-											sx={{
-												display: "flex",
-												justifyContent: "space-between",
-												mb: 1,
-											}}
-										>
-											<Typography variant="body2">
-												{item.product.name} ×{" "}
-												{item.quantity}
-											</Typography>
-											<Typography variant="body2">
-												$
-												{(
-													item.product.price *
-													item.quantity
-												).toFixed(2)}
-											</Typography>
-										</Box>
-									))}
-									<Divider sx={{ my: 1 }} />
-									<Box
-										sx={{
-											display: "flex",
-											justifyContent: "space-between",
-											mb: 1,
-										}}
-									>
-										<Typography
-											variant="body2"
-											color="text.secondary"
-										>
-											Delivery Type:
-										</Typography>
-										<Typography
-											variant="body2"
-											sx={{ textTransform: "capitalize" }}
-										>
-											{deliveryType}
-										</Typography>
-									</Box>
-									{deliveryDate && (
-										<Box
-											sx={{
-												display: "flex",
-												justifyContent: "space-between",
-												mb: 1,
-											}}
-										>
-											<Typography
-												variant="body2"
-												color="text.secondary"
-											>
-												Delivery Date:
-											</Typography>
-											<Typography variant="body2">
-												{deliveryDate.toLocaleDateString()}
-											</Typography>
-										</Box>
-									)}
-								</Paper>
-
-								<Box
-									sx={{
-										display: "flex",
-										justifyContent: "space-between",
-									}}
-								>
-									<Typography
-										variant="h6"
-										sx={{ fontWeight: 700 }}
-									>
-										Total
-									</Typography>
-									<Typography
-										variant="h6"
-										color="primary"
-										sx={{ fontWeight: 800 }}
-									>
-										$
-										{checkoutItems
-											.reduce(
-												(a, i) =>
-													a +
-													i.product.price *
-														i.quantity,
-												0,
-											)
-											.toFixed(2)}
-									</Typography>
-								</Box>
-								<Button
-									variant="contained"
-									color="secondary"
-									fullWidth
-									size="large"
-									disabled={checkoutItems.length === 0}
-									onClick={handlePlaceOrder}
-									sx={{
-										mt: 3,
-										borderRadius: "14px",
-										py: 1.5,
-									}}
-								>
-									Place Order
-								</Button>
-							</Box>
+							<CartCheckoutStep
+								checkoutItems={checkoutItems}
+								deliveryType={deliveryType}
+								setDeliveryType={setDeliveryType}
+								deliveryDate={deliveryDate}
+								setDeliveryDate={setDeliveryDate}
+								handlePlaceOrder={handlePlaceOrder}
+							/>
 						)}
 					</Box>
 

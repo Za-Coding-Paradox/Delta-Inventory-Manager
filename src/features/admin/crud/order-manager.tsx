@@ -10,6 +10,7 @@ import { DataTable, Column } from "../../../components/data-display/DataTable";
 import { StatusChip } from "../../../components/data-display/StatusChip";
 import { ConfirmDialog } from "../../../components/feedback/ConfirmDialog";
 import OrderFormModal from "./order-form-modal";
+import { useOrderMutations } from "./hooks/use-order-mutations";
 
 export default function OrderManager() {
   const { state, dispatch } = useAppContext();
@@ -31,9 +32,13 @@ export default function OrderManager() {
 
   const handleOpenForm = useCallback((order: Order | null = null) => { setEditingOrder(order); setFormOpen(true); }, []);
   const handleDeleteRequest = useCallback((order: Order) => setOrderToDelete(order), []);
-  const handleConfirmDelete = useCallback(() => {
-    if (orderToDelete) { dispatch({ type: "DELETE_ORDER", payload: orderToDelete.id }); setOrderToDelete(null); }
-  }, [dispatch, orderToDelete]);
+  const { deleteOrder, loading: isDeleting } = useOrderMutations();
+  const handleConfirmDelete = useCallback(async () => {
+    if (orderToDelete) { 
+      await deleteOrder(orderToDelete.id); 
+      setOrderToDelete(null); 
+    }
+  }, [deleteOrder, orderToDelete]);
 
   const columns = useMemo<Column<Order>[]>(() => [
     { key: "id", label: "Order ID", width: "1fr", render: (o) => <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: "monospace" }}>#{o.id.slice(-6).toUpperCase()}</Typography> },

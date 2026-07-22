@@ -13,8 +13,8 @@ export const ActiveDeliveriesWidget = React.memo(function ActiveDeliveriesWidget
 	}, [orders]);
 
 	return (
-		<WidgetCard title="Active Deliveries">
-			<Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>
+		<WidgetCard title="Active Deliveries" contentSx={{ pb: 1 }}>
+			<Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>
 				{activeCount}
 			</Typography>
 			<Typography variant="caption" color="text.secondary">In transit today</Typography>

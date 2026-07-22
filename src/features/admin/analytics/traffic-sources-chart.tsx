@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { DUMMY_CUSTOMER_ANALYTICS } from "../../../config/constants";
+import { DUMMY_CUSTOMER_ANALYTICS } from "../../../constants";
 import { WidgetCard } from "../../../components/data-display/WidgetCard";
 
 function TrafficSourcesChart() {

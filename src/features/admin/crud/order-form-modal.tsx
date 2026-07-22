@@ -3,11 +3,12 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, B
 import { useAppContext } from "../../../context/app-context";
 import type { Order, OrderItem, Product, OrderStatus } from "../../../config/types";
 import OrderItemsList from "./components/OrderItemsList";
+import { useOrderMutations } from "./hooks/use-order-mutations";
 
 interface OrderFormModalProps { open: boolean; order: Order | null; onClose: () => void; }
 
 export default memo(function OrderFormModal({ open, order, onClose }: OrderFormModalProps) {
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
   const [customerName, setCustomerName] = useState("");
   const [status, setStatus] = useState<OrderStatus>("PENDING");
   const [deliveryType, setDeliveryType] = useState<"standard" | "express">("standard");
@@ -29,14 +30,16 @@ export default memo(function OrderFormModal({ open, order, onClose }: OrderFormM
     setItems((prev) => [...prev, { productId: product.id, productName: product.name, selectedColorName: product.colors?.[0]?.name || "Default", quantity: 1, priceAtOrder: product.price }]);
   }, []);
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const { placeOrder, updateOrder, loading } = useOrderMutations();
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName.trim() || items.length === 0) return;
     const payload = { customerName, status, deliveryType, items, total };
-    if (order) dispatch({ type: "UPDATE_ORDER", payload: { ...order, ...payload } });
-    else dispatch({ type: "PLACE_ORDER", payload: { id: `ord_${Date.now().toString(36)}`, ...payload, timestamp: new Date().toISOString(), deliveryDate: null } });
+    if (order) await updateOrder({ ...order, ...payload });
+    else await placeOrder({ id: `ord_${Date.now().toString(36)}`, ...payload, timestamp: new Date().toISOString(), deliveryDate: null });
     onClose();
-  }, [customerName, status, deliveryType, items, total, order, dispatch, onClose]);
+  }, [customerName, status, deliveryType, items, total, order, placeOrder, updateOrder, onClose]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth sx={{ "& .MuiDialog-paper": { borderRadius: "16px" } }}>
@@ -63,7 +66,9 @@ export default memo(function OrderFormModal({ open, order, onClose }: OrderFormM
         </DialogContent>
         <DialogActions sx={{ p: 2, px: 3 }}>
           <Button onClick={onClose} variant="outlined" sx={{ borderRadius: "8px" }}>Cancel</Button>
-          <Button type="submit" variant="contained" disabled={!customerName.trim() || items.length === 0} sx={{ borderRadius: "8px" }}>{order ? "Save Changes" : "Create Order"}</Button>
+          <Button type="submit" variant="contained" disabled={!customerName.trim() || items.length === 0 || loading} sx={{ borderRadius: "8px" }}>
+            {loading ? "Processing..." : order ? "Save Changes" : "Create Order"}
+          </Button>
         </DialogActions>
       </form>
     </Dialog>

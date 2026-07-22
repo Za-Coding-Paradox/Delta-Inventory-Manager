@@ -14,8 +14,8 @@ export const InventoryValueWidget = React.memo(function InventoryValueWidget({ p
 	}, [products]);
 
 	return (
-		<WidgetCard title="Inventory Value">
-			<Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>
+		<WidgetCard title="Inventory Value" contentSx={{ pb: 1 }}>
+			<Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>
 				${totalValueStr}k
 			</Typography>
 			<Typography variant="caption" color="text.secondary">Across all warehouses</Typography>

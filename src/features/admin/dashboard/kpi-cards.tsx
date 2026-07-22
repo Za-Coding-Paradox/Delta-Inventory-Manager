@@ -3,7 +3,7 @@ import { Stack, IconButton } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { WidgetCard } from "../../../components/data-display/WidgetCard";
-import { useKpiStats } from "./components/use-kpi-stats";
+import { useKpiStats } from "./hooks/use-kpi-stats";
 import { KpiRow } from "./components/kpi-row";
 
 export default function AggregatesWidget() {

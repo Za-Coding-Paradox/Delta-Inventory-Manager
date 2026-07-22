@@ -21,7 +21,7 @@ export const NetworkStatusWidget = React.memo(function NetworkStatusWidget({ nod
 	}, [nodes]);
 
 	return (
-		<WidgetCard title="Network Status" contentSx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+		<WidgetCard title="Network Status" contentSx={{ display: "flex", flexDirection: "column", gap: 1, pb: 2 }}>
 			<KeyValueRow label="Healthy Nodes" value={counts.normal} valueColor="success.main" valueVariant="body2" />
 			<KeyValueRow label="Delayed" value={counts.delayed} valueColor="warning.main" valueVariant="body2" />
 			<KeyValueRow label="Critical" value={counts.critical} valueColor="error.main" valueVariant="body2" />

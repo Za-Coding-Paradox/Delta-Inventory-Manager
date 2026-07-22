@@ -9,6 +9,7 @@ import { DataTable, Column } from "../../../components/data-display/DataTable";
 import { StatusChip } from "../../../components/data-display/StatusChip";
 import { ConfirmDialog } from "../../../components/feedback/ConfirmDialog";
 import ProductFormModal from "./product-form-modal";
+import { useProductMutations } from "./hooks/use-product-mutations";
 
 export default function ProductManager() {
   const { state, dispatch } = useAppContext();
@@ -33,9 +34,13 @@ export default function ProductManager() {
 
   const handleOpenForm = useCallback((product: Product | null = null) => { setEditingProduct(product); setFormOpen(true); }, []);
   const handleDeleteRequest = useCallback((product: Product) => setProductToDelete(product), []);
-  const handleConfirmDelete = useCallback(() => {
-    if (productToDelete) { dispatch({ type: "DELETE_PRODUCT", payload: productToDelete.id }); setProductToDelete(null); }
-  }, [dispatch, productToDelete]);
+  const { deleteProduct, loading: isDeleting } = useProductMutations();
+  const handleConfirmDelete = useCallback(async () => {
+    if (productToDelete) { 
+      await deleteProduct(productToDelete.id); 
+      setProductToDelete(null); 
+    }
+  }, [deleteProduct, productToDelete]);
 
   const columns = useMemo<Column<Product>[]>(() => [
     { key: "img", label: "Img", width: "60px", render: (p) => <Box component="img" src={p.defaultImageUrl} sx={{ width: 40, height: 40, borderRadius: "8px", objectFit: "cover" }} /> },

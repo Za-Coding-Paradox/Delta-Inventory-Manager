@@ -14,8 +14,8 @@ export default function NotificationsPanel() {
 		<WidgetCard
 			title="Recent Notifications"
 			headerAction={<NotificationsRoundedIcon sx={{ color: "text.secondary" }} />}
-			sx={{ flex: 1, minHeight: 0, maxHeight: 170 }}
-			contentSx={{ overflowY: "auto", pr: 1, maxHeight: 80 }}
+			sx={{ flexGrow: 1, minHeight: 0 }}
+			contentSx={{ overflowY: "auto", pr: 1 }}
 		>
 			{state.notifications.length === 0 ? (
 				<Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 4 }}>

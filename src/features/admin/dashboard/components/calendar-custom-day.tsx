@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { PickerDay } from "@mui/x-date-pickers";
 import { format } from "date-fns";
 import type { CalendarEventType } from "../../../../config/types";
-import { EVENT_COLORS } from "./calendar-constants";
+import { CALENDAR_EVENT_COLORS } from "../../../../constants/calendar";
 import React from "react";
 
 const EventDot = React.memo(({ color }: { color: string }) => (
@@ -24,7 +24,7 @@ export const CustomDay = React.memo(({ eventDates, day, ...props }: CustomDayPro
 			<PickerDay day={day} {...props as any} />
 			{types.length > 0 && (
 				<Box sx={{ position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 0.3 }}>
-					{types.slice(0, 3).map((t, i) => <EventDot key={i} color={EVENT_COLORS[t]} />)}
+					{types.slice(0, 3).map((t, i) => <EventDot key={i} color={CALENDAR_EVENT_COLORS[t]} />)}
 				</Box>
 			)}
 		</Box>

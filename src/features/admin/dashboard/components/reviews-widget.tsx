@@ -5,7 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { useAppContext } from "../../../../context/app-context";
 import { WidgetCard } from "../../../../components/data-display/WidgetCard";
-import ReviewsModal from "../../reviews-modal";
+import ReviewsModal from "../reviews-modal";
 import React from "react";
 
 export const ReviewsWidget = React.memo(function ReviewsWidget() {

@@ -2,7 +2,7 @@ import { Box, Typography, Chip, IconButton, alpha, useTheme } from "@mui/materia
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import type { CalendarEvent } from "../../../../config/types";
-import { EVENT_COLORS, EVENT_TYPE_LABELS } from "./calendar-constants";
+import { CALENDAR_EVENT_COLORS, CALENDAR_EVENT_TYPE_LABELS } from "../../../../constants/calendar";
 import React from "react";
 
 interface Props {
@@ -34,16 +34,16 @@ export const CalendarEventList = React.memo(({ eventsForDay, selectedDate, onEdi
 						key={evt.id}
 						sx={{
 							p: 2, borderRadius: "12px",
-							backgroundColor: alpha(EVENT_COLORS[evt.type], isDark ? 0.15 : 0.08),
-							border: `1px solid ${alpha(EVENT_COLORS[evt.type], 0.25)}`,
+							backgroundColor: alpha(CALENDAR_EVENT_COLORS[evt.type], isDark ? 0.15 : 0.08),
+							border: `1px solid ${alpha(CALENDAR_EVENT_COLORS[evt.type], 0.25)}`,
 							display: "flex", alignItems: "flex-start", gap: 1.5,
 						}}
 					>
-						<Box sx={{ width: 4, borderRadius: "2px", backgroundColor: EVENT_COLORS[evt.type], alignSelf: "stretch", flexShrink: 0 }} />
+						<Box sx={{ width: 4, borderRadius: "2px", backgroundColor: CALENDAR_EVENT_COLORS[evt.type], alignSelf: "stretch", flexShrink: 0 }} />
 						<Box sx={{ flex: 1, minWidth: 0 }}>
 							<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
 								<Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>{evt.title}</Typography>
-								<Chip label={EVENT_TYPE_LABELS[evt.type]} size="small" sx={{ height: 20, fontSize: "0.7rem", backgroundColor: alpha(EVENT_COLORS[evt.type], 0.2), color: EVENT_COLORS[evt.type], fontWeight: 800 }} />
+								<Chip label={CALENDAR_EVENT_TYPE_LABELS[evt.type]} size="small" sx={{ height: 20, fontSize: "0.7rem", backgroundColor: alpha(CALENDAR_EVENT_COLORS[evt.type], 0.2), color: CALENDAR_EVENT_COLORS[evt.type], fontWeight: 800 }} />
 							</Box>
 							{evt.description && (
 								<Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>{evt.description}</Typography>

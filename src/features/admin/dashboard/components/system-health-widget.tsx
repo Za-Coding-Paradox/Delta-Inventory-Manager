@@ -41,8 +41,8 @@ export const SystemHealthWidget = React.memo(function SystemHealthWidget() {
 	const headerAction = <StatusChip status={overallStatus} label={overallStatus === "ERROR" ? "Degraded" : overallStatus === "WARNING" ? "Warning" : "Optimal"} size="small" />;
 
 	return (
-		<WidgetCard title="System Health" headerAction={headerAction} sx={{ gap: 2 }}>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+		<WidgetCard title="System Health" headerAction={headerAction} sx={{ flexGrow: 1 }} contentSx={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
+			<Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
 				<KeyValueRow label="Server Uptime" value={formatTime(uptimeSeconds)} />
 				<KeyValueRow label="Database Load" value={`${Math.round(dbLoad)}%`} valueColor={dbLoad > 70 ? "warning.main" : "text.primary"} />
 				<KeyValueRow label="API Latency" value={`${apiLatency}ms`} valueColor={apiLatency > 30 ? "warning.main" : "text.primary"} />

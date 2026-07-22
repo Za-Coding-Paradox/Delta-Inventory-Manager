@@ -232,7 +232,8 @@ export default function AdminSidebar({ collapsed }: AdminSidebarProps) {
 						// When collapsed, wrap each button in a Tooltip so hovering over an icon shows the route name.
 						// When expanded, the label is already visible so no Tooltip is needed.
 						return collapsed ? (
-							<Tooltip key={item.path} title={item.label} placement="right" arrow> {/* shows label to the right of the icon on hover */}
+							/* shows label to the right of the icon on hover */
+							<Tooltip key={item.path} title={item.label} placement="right" arrow>
 								{btn}
 							</Tooltip>
 						) : (

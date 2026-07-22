@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useAppContext } from "../../../../context/app-context";
-import { DUMMY_CUSTOMER_ANALYTICS } from "../../../../config/constants";
+import { DUMMY_CUSTOMER_ANALYTICS } from "../../../../constants";
 
 export function useFunnelData() {
 	const { state } = useAppContext();

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useNodesState, useEdgesState, Connection, Edge, NodeChange } from "@xyflow/react";
 import { useAppContext } from "../../../../context/app-context";
 import { SCNode, SCEdge, SupplyChainNodeType } from "../../../../config/types";
-import { DUMMY_SUPPLY_CHAIN_NODES, DUMMY_SUPPLY_CHAIN_EDGES } from "../../../../config/constants";
+import { DUMMY_SUPPLY_CHAIN_NODES, DUMMY_SUPPLY_CHAIN_EDGES } from "../../../../constants";
 import { useTheme } from "@mui/material/styles";
 
 export function useSupplyChainGraph(setSelectedNode: (n: SCNode | null) => void) {

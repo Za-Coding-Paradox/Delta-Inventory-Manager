@@ -20,7 +20,7 @@ import {
 	DUMMY_MESSAGES,
 	DUMMY_ORDERS,
 	DUMMY_REVIEWS,
-} from "../config/constants";
+} from "../constants";
 import {
 	canAddToCart,
 	clampCartItemQty,

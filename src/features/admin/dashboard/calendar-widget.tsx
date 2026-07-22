@@ -40,7 +40,7 @@ export default function CalendarWidget() {
 
 	return (
 		<>
-			<WidgetCard headerAction={headerAction} sx={{ height: "100%" }} contentSx={{ display: "flex", alignItems: "center", justifyContent: "center", pb: 2, pt: 0 }}>
+			<WidgetCard headerAction={headerAction} contentSx={{ display: "flex", alignItems: "center", justifyContent: "center", pb: 2, pt: 0 }}>
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DateCalendar
 						onChange={handleDayClick}

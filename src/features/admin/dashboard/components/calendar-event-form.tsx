@@ -1,6 +1,6 @@
 import { Box, Typography, Button, TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import type { CalendarEvent, CalendarEventType } from "../../../../config/types";
-import { EVENT_COLORS, EVENT_TYPE_LABELS } from "./calendar-constants";
+import { CALENDAR_EVENT_COLORS, CALENDAR_EVENT_TYPE_LABELS } from "../../../../constants/calendar";
 import React from "react";
 
 export type FormState = { title: string; type: CalendarEventType; description: string };
@@ -22,11 +22,11 @@ export const CalendarEventForm = React.memo(({ form, setForm, editingEvent, onSa
 				<FormControl fullWidth>
 					<InputLabel>Event Type</InputLabel>
 					<Select value={form.type} label="Event Type" onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as CalendarEventType }))}>
-						{(Object.keys(EVENT_TYPE_LABELS) as CalendarEventType[]).map((t) => (
+						{(Object.keys(CALENDAR_EVENT_TYPE_LABELS) as CalendarEventType[]).map((t) => (
 							<MenuItem key={t} value={t}>
 								<Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-									<Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: EVENT_COLORS[t] }} />
-									{EVENT_TYPE_LABELS[t]}
+									<Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: CALENDAR_EVENT_COLORS[t] }} />
+									{CALENDAR_EVENT_TYPE_LABELS[t]}
 								</Box>
 							</MenuItem>
 						))}

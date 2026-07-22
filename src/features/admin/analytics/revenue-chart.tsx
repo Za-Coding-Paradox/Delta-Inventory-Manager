@@ -1,5 +1,5 @@
 import { useAppContext } from "../../../context/app-context";
-import { DUMMY_SALES_TIMESERIES } from "../../../config/constants";
+import { DUMMY_SALES_TIMESERIES } from "../../../constants";
 import { useMemo } from "react";
 import { WidgetCard } from "../../../components/data-display/WidgetCard";
 import RevenueAreaChart from "./components/revenue-area-chart";

@@ -14,7 +14,7 @@ import type {
 	Message,
 	Order,
 	Review,
-} from "./types";
+} from "../config/types";
 
 /* ==========================================================================
  * 1. LOCAL STORAGE KEYS

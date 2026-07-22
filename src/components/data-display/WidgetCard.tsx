@@ -23,6 +23,7 @@ export function WidgetCard({
 				display: "flex",
 				flexDirection: "column",
 				overflow: "hidden",
+				flexShrink: 0,
 				...sx,
 			}}
 			{...props}

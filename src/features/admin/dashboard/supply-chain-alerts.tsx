@@ -1,17 +1,13 @@
 import { Box, Typography, Chip } from "@mui/material";
-import { useAppContext } from "../../../context/app-context";
+
 import { motion, AnimatePresence } from "framer-motion";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { WidgetCard } from "../../../components/data-display/WidgetCard";
 import { AlertItem } from "./components/alert-item";
-import { useMemo } from "react";
+import { useSupplyChainAlerts } from "./hooks/use-supply-chain-alerts";
 
 export default function SupplyChainAlerts() {
-	const { state } = useAppContext();
-
-	const alerts = useMemo(() => state.supplyChainNodes.filter(
-		(n) => n.data.status === "DELAYED" || n.data.status === "CRITICAL"
-	), [state.supplyChainNodes]);
+	const { alerts } = useSupplyChainAlerts();
 
 	const headerAction = (
 		<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -21,7 +17,7 @@ export default function SupplyChainAlerts() {
 	);
 
 	return (
-		<WidgetCard title="Supply Chain Alerts" headerAction={headerAction} sx={{ flex: 1, minWidth: 320, height: "100%", maxHeight: 400 }} contentSx={{ overflowY: "auto", pr: 1, display: "flex", flexDirection: "column" }}>
+		<WidgetCard title="Supply Chain Alerts" headerAction={headerAction} sx={{ flexGrow: 1, minWidth: 320 }} contentSx={{ overflowY: "auto", pr: 1, display: "flex", flexDirection: "column" }}>
 			{alerts.length === 0 ? (
 				<Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
 					All supply chain nodes operating normally.

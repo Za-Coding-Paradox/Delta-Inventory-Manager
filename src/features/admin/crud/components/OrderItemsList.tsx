@@ -1,7 +1,7 @@
 import { memo, useCallback } from "react";
 import { Box, Typography, TextField, IconButton } from "@mui/material";
 import { DeleteRounded } from "@mui/icons-material";
-import type { OrderItem } from "../../../../../config/types";
+import type { OrderItem } from "../../../../config/types";
 
 export default memo(function OrderItemsList({ items, setItems }: { items: OrderItem[], setItems: React.Dispatch<React.SetStateAction<OrderItem[]>> }) {
   const handleUpdateItemQty = useCallback((index: number, quantity: number) => {

@@ -3,7 +3,7 @@ import { Box, IconButton, Stack, Button, Avatar, Typography } from "@mui/materia
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useAppContext } from "../../../../context/app-context";
 import { WidgetCard } from "../../../../components/data-display/WidgetCard";
-import MessagesModal from "../../messages-modal";
+import MessagesModal from "../messages-modal";
 import React from "react";
 
 export const MessagesWidget = React.memo(function MessagesWidget() {
@@ -23,7 +23,7 @@ export const MessagesWidget = React.memo(function MessagesWidget() {
 
 	return (
 		<>
-			<WidgetCard title="Messages" headerAction={headerAction} sx={{ height: "100%" }} contentSx={{ display: "flex", flexDirection: "column" }}>
+			<WidgetCard title="Messages" headerAction={headerAction} sx={{ flexGrow: 1 }} contentSx={{ display: "flex", flexDirection: "column" }}>
 				<Box sx={{ flex: 1, maxHeight: 170, overflowY: "auto", pr: 1, mb: 2 }}>
 					<Stack spacing={2}>
 						{messages.map((msg) => (
